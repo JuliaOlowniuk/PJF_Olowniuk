@@ -1,12 +1,12 @@
-import tkinter as tk
-from tkinter import messagebox, simpledialog
 import sqlite3
-from todolist_db import create_table
+import tkinter as tk
 from add import add_task
 from delete import delete_task
 from done import mark_done
 from load import load_tasks
 from sort import sort_tasks
+from todolist_db import create_table
+from search import search_task
 
 class ToDoListApp:
     def initialize(self, root):
@@ -30,6 +30,9 @@ class ToDoListApp:
 
         self.sort_button = tk.Button(root, text="Sortuj zadania", command=lambda: sort_tasks(self.conn, self.task_listbox))
         self.sort_button.grid(row=2, column=2, padx=10, pady=10)
+
+        self.search_button = tk.Button(root, text="Wyszukaj zadanie",command=lambda: search_task(self.conn, self.task_listbox))
+        self.search_button.grid(row=2, column=3, padx=10, pady=10)
 
         self.due_date_entry = tk.Entry(root, width=12)
         self.due_date_entry.grid(row=0, column=5, padx=10, pady=10)
