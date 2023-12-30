@@ -17,7 +17,6 @@ def add_task(conn, task_entry, task_listbox, priority_entry):
             return
 
         cursor = conn.cursor()
-
         # Sprawdź, czy istnieje zadanie o takim samym priorytecie
         cursor.execute('SELECT * FROM tasks WHERE priority=?', (priority,))
         existing_task = cursor.fetchone()
