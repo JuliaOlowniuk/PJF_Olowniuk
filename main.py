@@ -6,6 +6,7 @@ from add import add_task
 from delete import delete_task
 from done import mark_done
 from load import load_tasks
+from sort import sort_tasks
 
 class ToDoListApp:
     def initialize(self, root):
@@ -26,6 +27,9 @@ class ToDoListApp:
 
         self.due_date_entry_label = tk.Label(root, text="Data wykonania:")
         self.due_date_entry_label.grid(row=0, column=4, padx=10, pady=10)
+
+        self.sort_button = tk.Button(root, text="Sortuj zadania", command=lambda: sort_tasks(self.conn, self.task_listbox))
+        self.sort_button.grid(row=2, column=2, padx=10, pady=10)
 
         self.due_date_entry = tk.Entry(root, width=12)
         self.due_date_entry.grid(row=0, column=5, padx=10, pady=10)
