@@ -18,11 +18,17 @@ class ToDoListApp:
         self.task_entry = tk.Entry(root, width=40)
         self.task_entry.grid(row=0, column=0, padx=10, pady=10)
 
-        self.add_button = tk.Button(root, text="Dodaj zadanie", command=lambda: add_task(self.conn, self.task_entry, self.task_listbox))
-        self.add_button.grid(row=0, column=1, padx=10, pady=10)
+        self.priority_entry_label = tk.Label(root, text="Priorytet:")
+        self.priority_entry_label.grid(row=0, column=1, padx=10, pady=10)
+
+        self.priority_entry = tk.Entry(root, width=5)
+        self.priority_entry.grid(row=0, column=2, padx=10, pady=10)
+
+        self.add_button = tk.Button(root, text="Dodaj zadanie", command=lambda: add_task(self.conn, self.task_entry, self.task_listbox, self.priority_entry))
+        self.add_button.grid(row=0, column=3, padx=10, pady=10)
 
         self.task_listbox = tk.Listbox(root, selectmode=tk.SINGLE, height=10, width=50)
-        self.task_listbox.grid(row=1, column=0, columnspan=2, padx=10, pady=10)
+        self.task_listbox.grid(row=1, column=0, columnspan=4, padx=10, pady=10)
 
         self.delete_button = tk.Button(root, text="Usuń zadanie", command=lambda: delete_task(self.conn, self.task_listbox))
         self.delete_button.grid(row=2, column=0, padx=10, pady=10)
