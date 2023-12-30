@@ -39,9 +39,9 @@ def display_sorted_tasks(task_listbox, tasks):
 
 def format_due_date(due_date):
     try:
-        # Spróbuj sformatować datę w bardziej czytelnym formacie
+
         parsed_date = datetime.strptime(due_date, "%Y-%m-%d")
         return parsed_date.strftime("%d-%m-%Y")
     except ValueError:
-        # Jeśli nie uda się sparsować daty, zwróć oryginalną wartość
+
         return due_date
