@@ -11,7 +11,8 @@ def create_table(conn):
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 task TEXT NOT NULL,
                 done BOOLEAN NOT NULL,
-                priority INTEGER DEFAULT 0
+                priority INTEGER DEFAULT 0,
+                due_date TEXT
             )
         ''')
         conn.commit()

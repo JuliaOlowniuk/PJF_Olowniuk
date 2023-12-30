@@ -1,5 +1,5 @@
 import tkinter as tk
-from tkinter import messagebox
+from tkinter import messagebox, simpledialog
 import sqlite3
 from todolist_db import create_table
 from add import add_task
@@ -24,8 +24,14 @@ class ToDoListApp:
         self.priority_entry = tk.Entry(root, width=5)
         self.priority_entry.grid(row=0, column=2, padx=10, pady=10)
 
-        self.add_button = tk.Button(root, text="Dodaj zadanie", command=lambda: add_task(self.conn, self.task_entry, self.task_listbox, self.priority_entry))
-        self.add_button.grid(row=0, column=3, padx=10, pady=10)
+        self.due_date_entry_label = tk.Label(root, text="Data wykonania:")
+        self.due_date_entry_label.grid(row=0, column=4, padx=10, pady=10)
+
+        self.due_date_entry = tk.Entry(root, width=12)
+        self.due_date_entry.grid(row=0, column=5, padx=10, pady=10)
+
+        self.add_button = tk.Button(root, text="Dodaj zadanie", command=lambda: add_task(self.conn, self.task_entry, self.task_listbox, self.priority_entry, self.due_date_entry))
+        self.add_button.grid(row=0, column=6, padx=10, pady=10)
 
         self.task_listbox = tk.Listbox(root, selectmode=tk.SINGLE, height=10, width=50)
         self.task_listbox.grid(row=1, column=0, columnspan=4, padx=10, pady=10)
@@ -44,7 +50,7 @@ class ToDoListApp:
 if tk.TkVersion >= 8.6:
     root = tk.Tk()
 else:
-    root = tk.Tk(className="ToDoListApp")
+    root = tk.Tk(className="ToDo List App")
 
 app = ToDoListApp()
 app.initialize(root)
