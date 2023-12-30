@@ -47,7 +47,7 @@ def add_task(conn, task_entry, task_listbox, priority_entry):
             task_entry.delete(0, tk.END)
             priority_entry.delete(0, tk.END)
             load_tasks(conn, task_listbox)
-            print("Zadanie dodane pomyślnie.")
+            print("Zadanie dodane pomyślnie")
         except sqlite3.Error as e:
             print(f"Błąd SQLite przy dodawaniu zadania do bazy danych: {e}")
             messagebox.showerror("Błąd", f"Wystąpił błąd podczas dodawania zadania do bazy danych: {e}")
