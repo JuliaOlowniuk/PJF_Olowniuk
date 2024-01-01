@@ -1,5 +1,6 @@
 import sqlite3
 import tkinter as tk
+from tkinter import simpledialog, messagebox, filedialog
 from add import add_task
 from delete import delete_task
 from done import mark_done
@@ -8,6 +9,7 @@ from sort import sort_tasks
 from todolist_db import create_table
 from search import search_task
 from edit import edit_description
+from saveToFile import save_tasks_to_file
 
 class ToDoListApp:
     def initialize(self, root):
@@ -53,10 +55,21 @@ class ToDoListApp:
         self.mark_done_button = tk.Button(root, text="Oznacz jako zrobione", command=lambda: mark_done(self.conn, self.task_listbox))
         self.mark_done_button.grid(row=2, column=1, padx=10, pady=10)
 
+        self.save_button = tk.Button(root, text="Zapisz do pliku", command=self.save_tasks_to_file)
+        self.save_button.grid(row=3, column=0, padx=10, pady=10)
+
         self.load_tasks()
 
     def load_tasks(self):
         load_tasks(self.conn, self.task_listbox)
+
+    def save_tasks_to_file(self):
+        filetypes = [("Text files", "*.txt")]
+        file = filedialog.asksaveasfile(defaultextension=".txt", filetypes=filetypes)
+        if file:
+            filename = file.name
+            file.close()
+            save_tasks_to_file(self.conn, filename)
 
 if tk.TkVersion >= 8.6:
     root = tk.Tk()
