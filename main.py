@@ -26,7 +26,7 @@ class ToDoListApp:
         self.priority_entry = tk.Entry(root, width=5)
         self.priority_entry.grid(row=0, column=2, padx=10, pady=10)
 
-        self.due_date_entry_label = tk.Label(root, text="Data wykonania:")
+        self.due_date_entry_label = tk.Label(root, text="Data wykonania (YYYY-MM-DD):")
         self.due_date_entry_label.grid(row=0, column=4, padx=10, pady=10)
 
         self.sort_button = tk.Button(root, text="Sortuj zadania", command=lambda: sort_tasks(self.conn, self.task_listbox))
