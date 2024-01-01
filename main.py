@@ -79,10 +79,10 @@ class ToDoListApp:
             save_tasks_to_file(self.conn, filename)
 
     def set_light_theme(self):
-        set_light_theme(self.root)
+        set_light_theme()
 
     def set_dark_theme(self):
-        set_dark_theme(self.root)
+        set_dark_theme()
 
 if tk.TkVersion >= 8.6:
     root = tk.Tk()
