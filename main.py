@@ -10,6 +10,7 @@ from todolist_db import create_table
 from search import search_task
 from edit import edit_description
 from saveToFile import save_tasks_to_file
+from theme_manager import set_light_theme, set_dark_theme
 
 class ToDoListApp:
     def initialize(self, root):
@@ -58,6 +59,12 @@ class ToDoListApp:
         self.save_button = tk.Button(root, text="Zapisz do pliku", command=self.save_tasks_to_file)
         self.save_button.grid(row=3, column=0, padx=10, pady=10)
 
+        self.light_button = tk.Button(root, text="Jasny motyw", command=self.set_light_theme)
+        self.light_button.grid(row=3, column=1, padx=10, pady=10)
+
+        self.dark_button = tk.Button(root, text="Ciemny motyw", command=self.set_dark_theme)
+        self.dark_button.grid(row=3, column=2, padx=10, pady=10)
+
         self.load_tasks()
 
     def load_tasks(self):
@@ -70,6 +77,12 @@ class ToDoListApp:
             filename = file.name
             file.close()
             save_tasks_to_file(self.conn, filename)
+
+    def set_light_theme(self):
+        set_light_theme(self.root)
+
+    def set_dark_theme(self):
+        set_dark_theme(self.root)
 
 if tk.TkVersion >= 8.6:
     root = tk.Tk()
