@@ -15,7 +15,6 @@ def dynamic_priority(conn, task_listbox, priority_entry):
     # Usuń zadania o priorytetach większych niż ilość pozostałych zadań
     cursor.execute('DELETE FROM tasks WHERE priority > ?', (len(tasks),))
 
-    # Wyświetl zaktualizowane zadania
     load_tasks(conn, task_listbox)
 
     # Aktualizuj widoczny priorytet w polu Entry
