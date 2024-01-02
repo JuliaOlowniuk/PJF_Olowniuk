@@ -1,6 +1,6 @@
 import sqlite3
 import tkinter as tk
-from tkinter import simpledialog, messagebox, filedialog
+from tkinter import filedialog
 from add import add_task
 from delete import delete_task
 from done import mark_done
@@ -11,6 +11,7 @@ from search import search_task
 from edit import edit_description
 from saveToFile import save_tasks_to_file
 from theme_manager import set_light_theme, set_dark_theme
+from priority_manager import dynamic_priority
 
 class ToDoListApp:
     def initialize(self, root):
@@ -44,7 +45,7 @@ class ToDoListApp:
         self.due_date_entry = tk.Entry(root, width=12)
         self.due_date_entry.grid(row=0, column=5, padx=10, pady=10)
 
-        self.add_button = tk.Button(root, text="Dodaj zadanie", command=lambda: add_task(self.conn, self.task_entry, self.task_listbox, self.priority_entry, self.due_date_entry))
+        self.add_button = tk.Button(root, text="Dodaj zadanie", command=self.add_task_with_dynamic_priority)
         self.add_button.grid(row=0, column=6, padx=10, pady=10)
 
         self.task_listbox = tk.Listbox(root, selectmode=tk.SINGLE, height=10, width=50)
@@ -83,6 +84,13 @@ class ToDoListApp:
 
     def set_dark_theme(self):
         set_dark_theme()
+
+    def add_task_with_dynamic_priority(self):
+        # Dodaj zadanie
+        add_task(self.conn, self.task_entry, self.task_listbox, self.priority_entry, self.due_date_entry)
+
+        # Wywołaj funkcję dynamicznej priorytetyzacji
+        dynamic_priority(self.conn, self.task_listbox, self.priority_entry.get())
 
 if tk.TkVersion >= 8.6:
     root = tk.Tk()
