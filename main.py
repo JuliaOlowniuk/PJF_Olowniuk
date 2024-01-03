@@ -24,13 +24,17 @@ class ToDoListApp:
         self.main_frame = tk.Frame(root)
         self.main_frame.pack(fill=tk.BOTH, expand=True)
 
-        self.scrollbar = tk.Scrollbar(self.main_frame, orient=tk.VERTICAL)
-        self.scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
+        self.scrollbar_y = tk.Scrollbar(self.main_frame, orient=tk.VERTICAL)
+        self.scrollbar_y.pack(side=tk.RIGHT, fill=tk.Y)
 
-        self.canvas = tk.Canvas(self.main_frame, yscrollcommand=self.scrollbar.set)
+        self.scrollbar_x = tk.Scrollbar(self.main_frame, orient=tk.HORIZONTAL)
+        self.scrollbar_x.pack(side=tk.BOTTOM, fill=tk.X)
+
+        self.canvas = tk.Canvas(self.main_frame, yscrollcommand=self.scrollbar_y.set, xscrollcommand=self.scrollbar_x.set)
         self.canvas.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
 
-        self.scrollbar.config(command=self.canvas.yview)
+        self.scrollbar_y.config(command=self.canvas.yview)
+        self.scrollbar_x.config(command=self.canvas.xview)
 
         self.inner_frame = tk.Frame(self.canvas)
         self.canvas.create_window((0, 0), window=self.inner_frame, anchor=tk.NW)
@@ -132,4 +136,5 @@ else:
 app = ToDoListApp()
 app.initialize(root)
 root.geometry("800x600")
+root.resizable(True, True)
 root.mainloop()
