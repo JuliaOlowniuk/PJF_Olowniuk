@@ -2,8 +2,8 @@ import sqlite3
 import tkinter as tk
 from tkinter import filedialog
 from add import add_task
-from delete import delete_task
 from done import mark_done
+from delete import delete_task
 from load import load_tasks
 from sort import sort_tasks
 from todolist_db import create_table
@@ -51,7 +51,7 @@ class ToDoListApp:
         self.task_listbox = tk.Listbox(root, selectmode=tk.SINGLE, height=10, width=50)
         self.task_listbox.grid(row=1, column=0, columnspan=4, padx=10, pady=10)
 
-        self.delete_button = tk.Button(root, text="Usuń zadanie", command=lambda: delete_task(self.conn, self.task_listbox))
+        self.delete_button = tk.Button(root, text="Usuń zadanie", command=self.delete_task)
         self.delete_button.grid(row=2, column=0, padx=10, pady=10)
 
         self.mark_done_button = tk.Button(root, text="Oznacz jako zrobione", command=lambda: mark_done(self.conn, self.task_listbox))
@@ -90,7 +90,9 @@ class ToDoListApp:
         add_task(self.conn, self.task_entry, self.task_listbox, self.priority_entry, self.due_date_entry)
 
         # Wywołaj funkcję dynamicznej priorytetyzacji
-        dynamic_priority(self.conn, self.task_listbox, self.priority_entry.get())
+        dynamic_priority(self.conn, self.task_listbox, self.priority_entry)
+    def delete_task(self):
+        delete_task(self.conn, self.task_listbox)
 
 if tk.TkVersion >= 8.6:
     root = tk.Tk()
