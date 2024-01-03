@@ -34,13 +34,13 @@ class ToDoListApp:
         self.due_date_entry_label.grid(row=0, column=4, padx=10, pady=10)
 
         self.sort_button = tk.Button(root, text="Sortuj zadania", command=lambda: sort_tasks(self.conn, self.task_listbox))
-        self.sort_button.grid(row=2, column=2, padx=10, pady=10)
+        self.sort_button.grid(row=2, column=2, padx=10, pady=10, sticky="nsew")
 
-        self.search_button = tk.Button(root, text="Wyszukaj zadanie",command=lambda: search_task(self.conn, self.task_listbox))
-        self.search_button.grid(row=2, column=3, padx=10, pady=10)
+        self.search_button = tk.Button(root, text="Wyszukaj zadanie", command=lambda: search_task(self.conn, self.task_listbox))
+        self.search_button.grid(row=2, column=3, padx=10, pady=10, sticky="nsew")
 
-        self.edit_description_button = tk.Button(root, text="Edytuj opis zadania",command=lambda: edit_description(self.conn, self.task_listbox))
-        self.edit_description_button.grid(row=2, column=4, padx=10, pady=10)
+        self.edit_description_button = tk.Button(root, text="Edytuj opis zadania", command=lambda: edit_description(self.conn, self.task_listbox))
+        self.edit_description_button.grid(row=2, column=4, padx=10, pady=10, sticky="nsew")
 
         self.due_date_entry = tk.Entry(root, width=12)
         self.due_date_entry.grid(row=0, column=5, padx=10, pady=10)
@@ -49,22 +49,27 @@ class ToDoListApp:
         self.add_button.grid(row=0, column=6, padx=10, pady=10)
 
         self.task_listbox = tk.Listbox(root, selectmode=tk.SINGLE, height=15, width=80)
-        self.task_listbox.grid(row=1, column=0, columnspan=4, padx=10, pady=10)
+        self.task_listbox.grid(row=1, column=0, columnspan=4, padx=10, pady=10, sticky="nsew")
+
+        for i in range(6):
+            root.grid_columnconfigure(i, weight=1)
+
+        root.geometry("800x600")
 
         self.delete_button = tk.Button(root, text="Usuń zadanie", command=self.delete_task)
-        self.delete_button.grid(row=2, column=0, padx=10, pady=10)
+        self.delete_button.grid(row=2, column=0, padx=10, pady=10, sticky="nsew")
 
         self.mark_done_button = tk.Button(root, text="Oznacz jako zrobione", command=lambda: mark_done(self.conn, self.task_listbox))
-        self.mark_done_button.grid(row=2, column=1, padx=10, pady=10)
+        self.mark_done_button.grid(row=2, column=1, padx=10, pady=10, sticky="nsew")
 
         self.save_button = tk.Button(root, text="Zapisz do pliku", command=self.save_tasks_to_file)
-        self.save_button.grid(row=3, column=0, padx=10, pady=10)
+        self.save_button.grid(row=3, column=0, padx=10, pady=10, sticky="nsew")
 
         self.light_button = tk.Button(root, text="Jasny motyw", command=self.set_light_theme)
-        self.light_button.grid(row=3, column=1, padx=10, pady=10)
+        self.light_button.grid(row=3, column=1, padx=10, pady=10, sticky="nsew")
 
         self.dark_button = tk.Button(root, text="Ciemny motyw", command=self.set_dark_theme)
-        self.dark_button.grid(row=3, column=2, padx=10, pady=10)
+        self.dark_button.grid(row=3, column=2, padx=10, pady=10, sticky="nsew")
 
         self.load_tasks()
 
@@ -86,11 +91,9 @@ class ToDoListApp:
         set_dark_theme()
 
     def add_task_with_dynamic_priority(self):
-        # Dodaj zadanie
         add_task(self.conn, self.task_entry, self.task_listbox, self.priority_entry, self.due_date_entry)
-
-        # Wywołaj funkcję dynamicznej priorytetyzacji
         dynamic_priority(self.conn, self.task_listbox, self.priority_entry)
+
     def delete_task(self):
         delete_task(self.conn, self.task_listbox)
 
