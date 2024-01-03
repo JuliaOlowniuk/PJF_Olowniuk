@@ -21,7 +21,7 @@ class ToDoListApp:
         self.conn = sqlite3.connect('todolist.db')
         create_table(self.conn)
 
-        self.task_entry = tk.Entry(root, width=40)
+        self.task_entry = tk.Entry(root, width=50)
         self.task_entry.grid(row=0, column=0, padx=10, pady=10)
 
         self.priority_entry_label = tk.Label(root, text="Priorytet:")
@@ -48,7 +48,7 @@ class ToDoListApp:
         self.add_button = tk.Button(root, text="Dodaj zadanie", command=self.add_task_with_dynamic_priority)
         self.add_button.grid(row=0, column=6, padx=10, pady=10)
 
-        self.task_listbox = tk.Listbox(root, selectmode=tk.SINGLE, height=10, width=50)
+        self.task_listbox = tk.Listbox(root, selectmode=tk.SINGLE, height=15, width=80)
         self.task_listbox.grid(row=1, column=0, columnspan=4, padx=10, pady=10)
 
         self.delete_button = tk.Button(root, text="Usuń zadanie", command=self.delete_task)
