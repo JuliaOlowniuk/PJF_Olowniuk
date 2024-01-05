@@ -3,7 +3,7 @@ from tkinter import simpledialog
 from datetime import datetime
 
 def sort_tasks(conn, task_listbox):
-    # Okno dialogowe do wyboru kryterium sortowania
+
     result = simpledialog.askstring("Sortowanie", "Wybierz kryterium sortowania:\n1. Priorytet rosnąco\n2. Priorytet malejąco\n3. Data wykonania rosnąco\n4. Data wykonania malejąco")
 
     if result:
