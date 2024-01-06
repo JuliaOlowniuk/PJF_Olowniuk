@@ -18,26 +18,6 @@ from priority_manager import dynamic_priority
 from importCSV import import_from_csv
 
 
-class DatePicker(tk.Toplevel):
-    def __init__(self, parent):
-        super().__init__(parent.root)
-        self.title("Wybierz datę")
-        self.parent = parent
-
-        cal = DateEntry(self, width=12, year=datetime.now().year, month=datetime.now().month,
-                        day=datetime.now().day, date_pattern='yyyy-mm-dd', background='darkblue', foreground='white', borderwidth=2)
-        cal.grid(row=0, column=0, padx=10, pady=10, sticky="w")
-
-        confirm_button = tk.Button(self, text="Potwierdź", command=self.set_due_date)
-        confirm_button.grid(row=1, column=0, padx=10, pady=10, sticky="w")
-
-    def set_due_date(self):
-        selected_date = self.cal.get_date()
-        self.parent.due_date_entry.delete(0, tk.END)
-        self.parent.due_date_entry.insert(0, selected_date)
-        self.destroy()
-
-
 class ToDoListApp:
     def initialize(self, root):
         self.root = root
@@ -136,11 +116,25 @@ class ToDoListApp:
         self.load_tasks()
 
     def open_calendar(self):
-        DatePicker(self)
+        top = tk.Toplevel()
 
-    def add_task_with_dynamic_priority(self):
-        add_task(self.conn, self.task_entry, self.task_listbox, self.priority_entry, self.due_date_entry)
-        dynamic_priority(self.conn, self.task_listbox, self.priority_entry)
+        def set_due_date():
+            selected_date = cal.get_date()
+            self.due_date_entry.delete(0, tk.END)
+            self.due_date_entry.insert(0, selected_date)
+            top.destroy()
+
+        cal = DateEntry(top, width=12, year=datetime.now().year, month=datetime.now().month, day=datetime.now().day,
+                        date_pattern='yyyy-mm-dd', background='darkblue', foreground='white', borderwidth=2)
+        cal.grid(row=0, column=0, padx=10, pady=10, sticky="w")
+
+        confirm_button = tk.Button(top, text="Potwierdź", command=set_due_date)
+        confirm_button.grid(row=1, column=0, padx=10, pady=10, sticky="w")
+
+        def on_closing():
+            top.destroy()
+
+        top.protocol("WM_DELETE_WINDOW", on_closing)
 
     def load_tasks(self):
         load_tasks(self.conn, self.task_listbox)
@@ -159,6 +153,10 @@ class ToDoListApp:
 
     def set_dark_theme(self):
         set_dark_theme()
+
+    def add_task_with_dynamic_priority(self):
+        add_task(self.conn, self.task_entry, self.task_listbox, self.priority_entry, self.due_date_entry)
+        dynamic_priority(self.conn, self.task_listbox, self.priority_entry)
 
     def import_data_from_csv(self):
         import_from_csv(self.conn, self.task_listbox)
