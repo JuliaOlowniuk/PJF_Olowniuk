@@ -14,6 +14,7 @@ from saveToFile import save_tasks_to_file
 from theme_manager import set_light_theme, set_dark_theme
 from priority_manager import dynamic_priority
 from importCSV import import_from_csv
+from editTask import edit_task_name
 class ToDoListApp:
     def initialize(self, root):
         self.root = root
@@ -66,7 +67,10 @@ class ToDoListApp:
         self.search_button = tk.Button(self.inner_frame, text="Wyszukaj zadanie", command=lambda: search_task(self.conn, self.task_listbox))
         self.search_button.grid(row=2, column=3, padx=10, pady=10, sticky="nsew")
 
-        self.edit_description_button = tk.Button(self.inner_frame, text="Edytuj opis zadania", command=lambda: edit_description(self.conn, self.task_listbox))
+        #self.edit_description_button = tk.Button(self.inner_frame, text="Edytuj opis zadania", command=lambda: edit_description(self.conn, self.task_listbox))
+        #self.edit_description_button.grid(row=2, column=4, padx=10, pady=10, sticky="nsew")
+
+        self.edit_description_button = tk.Button(self.inner_frame, text="Edytuj nazwe zadania",command=lambda: edit_task_name(self.conn, self.task_listbox))
         self.edit_description_button.grid(row=2, column=4, padx=10, pady=10, sticky="nsew")
 
         self.due_date_entry = tk.Entry(self.inner_frame, width=12)
