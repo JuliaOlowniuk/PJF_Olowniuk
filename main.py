@@ -1,10 +1,12 @@
 import sqlite3
 import tkinter as tk
-import os
+from tkcalendar import DateEntry
+from datetime import datetime
 from tkinter import filedialog
+import os
 from add import add_task
 from done import mark_done
-from delete import delete_task
+from delete import delete_task, update_priorities_after_delete
 from load import load_tasks
 from sort import sort_tasks
 from todolist_db import create_table
@@ -14,7 +16,28 @@ from saveToFile import save_tasks_to_file
 from theme_manager import set_light_theme, set_dark_theme
 from priority_manager import dynamic_priority
 from importCSV import import_from_csv
-from editTask import edit_task_name
+
+
+class DatePicker(tk.Toplevel):
+    def __init__(self, parent):
+        super().__init__(parent.root)
+        self.title("Wybierz datę")
+        self.parent = parent
+
+        cal = DateEntry(self, width=12, year=datetime.now().year, month=datetime.now().month,
+                        day=datetime.now().day, date_pattern='yyyy-mm-dd', background='darkblue', foreground='white', borderwidth=2)
+        cal.grid(row=0, column=0, padx=10, pady=10, sticky="w")
+
+        confirm_button = tk.Button(self, text="Potwierdź", command=self.set_due_date)
+        confirm_button.grid(row=1, column=0, padx=10, pady=10, sticky="w")
+
+    def set_due_date(self):
+        selected_date = self.cal.get_date()
+        self.parent.due_date_entry.delete(0, tk.END)
+        self.parent.due_date_entry.insert(0, selected_date)
+        self.destroy()
+
+
 class ToDoListApp:
     def initialize(self, root):
         self.root = root
@@ -61,16 +84,16 @@ class ToDoListApp:
         self.due_date_entry_label = tk.Label(self.inner_frame, text="Data wykonania (YYYY-MM-DD):")
         self.due_date_entry_label.grid(row=0, column=4, padx=10, pady=10, sticky="w")
 
+        self.calendar_button = tk.Button(self.inner_frame, text="Kalendarz", command=self.open_calendar)
+        self.calendar_button.grid(row=0, column=7, padx=10, pady=10, sticky="w")
+
         self.sort_button = tk.Button(self.inner_frame, text="Sortuj zadania", command=lambda: sort_tasks(self.conn, self.task_listbox))
         self.sort_button.grid(row=2, column=2, padx=10, pady=10, sticky="nsew")
 
         self.search_button = tk.Button(self.inner_frame, text="Wyszukaj zadanie", command=lambda: search_task(self.conn, self.task_listbox))
         self.search_button.grid(row=2, column=3, padx=10, pady=10, sticky="nsew")
 
-        #self.edit_description_button = tk.Button(self.inner_frame, text="Edytuj opis zadania", command=lambda: edit_description(self.conn, self.task_listbox))
-        #self.edit_description_button.grid(row=2, column=4, padx=10, pady=10, sticky="nsew")
-
-        self.edit_description_button = tk.Button(self.inner_frame, text="Edytuj nazwe zadania",command=lambda: edit_task_name(self.conn, self.task_listbox))
+        self.edit_description_button = tk.Button(self.inner_frame, text="Edytuj opis zadania", command=lambda: edit_description(self.conn, self.task_listbox))
         self.edit_description_button.grid(row=2, column=4, padx=10, pady=10, sticky="nsew")
 
         self.due_date_entry = tk.Entry(self.inner_frame, width=12)
@@ -112,6 +135,13 @@ class ToDoListApp:
 
         self.load_tasks()
 
+    def open_calendar(self):
+        DatePicker(self)
+
+    def add_task_with_dynamic_priority(self):
+        add_task(self.conn, self.task_entry, self.task_listbox, self.priority_entry, self.due_date_entry)
+        dynamic_priority(self.conn, self.task_listbox, self.priority_entry)
+
     def load_tasks(self):
         load_tasks(self.conn, self.task_listbox)
 
@@ -130,15 +160,12 @@ class ToDoListApp:
     def set_dark_theme(self):
         set_dark_theme()
 
-    def add_task_with_dynamic_priority(self):
-        add_task(self.conn, self.task_entry, self.task_listbox, self.priority_entry, self.due_date_entry)
-        dynamic_priority(self.conn, self.task_listbox, self.priority_entry)
-
     def import_data_from_csv(self):
         import_from_csv(self.conn, self.task_listbox)
 
     def delete_task(self):
         delete_task(self.conn, self.task_listbox)
+
 
 if tk.TkVersion >= 8.6:
     root = tk.Tk()
