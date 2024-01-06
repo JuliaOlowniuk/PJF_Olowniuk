@@ -1,5 +1,6 @@
 import sqlite3
 import tkinter as tk
+import os
 from tkinter import filedialog
 from add import add_task
 from done import mark_done
@@ -108,12 +109,13 @@ class ToDoListApp:
         load_tasks(self.conn, self.task_listbox)
 
     def save_tasks_to_file(self):
-        filetypes = [("Text files", "*.txt")]
+        filetypes = [("Text files", "*.txt"), ("Excel files", "*.xlsx"), ("Word files", "*.docx")]
         file = filedialog.asksaveasfile(defaultextension=".txt", filetypes=filetypes)
         if file:
             filename = file.name
+            file_format = os.path.splitext(filename)[1][1:].lower()
             file.close()
-            save_tasks_to_file(self.conn, filename)
+            save_tasks_to_file(self.conn, filename, file_format)
 
     def set_light_theme(self):
         set_light_theme()
