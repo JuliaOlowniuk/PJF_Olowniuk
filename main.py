@@ -13,7 +13,7 @@ from edit import edit_description
 from saveToFile import save_tasks_to_file
 from theme_manager import set_light_theme, set_dark_theme
 from priority_manager import dynamic_priority
-
+from importCSV import import_from_csv
 class ToDoListApp:
     def initialize(self, root):
         self.root = root
@@ -97,6 +97,9 @@ class ToDoListApp:
         self.save_button = tk.Button(self.inner_frame, text="Zapisz do pliku", command=self.save_tasks_to_file)
         self.save_button.grid(row=3, column=0, padx=10, pady=10, sticky="nsew")
 
+        self.import_button = tk.Button(self.inner_frame, text="Importuj dane z CSV", command=self.import_data_from_csv)
+        self.import_button.grid(row=3, column=3, padx=10, pady=10, sticky="nsew")
+
         self.light_button = tk.Button(self.inner_frame, text="Jasny motyw", command=self.set_light_theme)
         self.light_button.grid(row=3, column=1, padx=10, pady=10, sticky="nsew")
 
@@ -126,6 +129,9 @@ class ToDoListApp:
     def add_task_with_dynamic_priority(self):
         add_task(self.conn, self.task_entry, self.task_listbox, self.priority_entry, self.due_date_entry)
         dynamic_priority(self.conn, self.task_listbox, self.priority_entry)
+
+    def import_data_from_csv(self):
+        import_from_csv(self.conn, self.task_listbox)
 
     def delete_task(self):
         delete_task(self.conn, self.task_listbox)
