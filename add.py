@@ -25,20 +25,22 @@ def add_task(conn, task_entry, task_listbox, priority_entry, due_date_entry):
 
             new_priority = lower_priority_count + 1
 
-            user_response = simpledialog.askinteger("Nowy priorytet",
-                                                    f"Istnieje zadanie o priorytecie {priority}. Podaj nowy priorytet (na podstawie ilości zadań z niższymi priorytetami): {new_priority}")
+            user_response = simpledialog.askinteger("Nowy priorytet", f"Istnieje zadanie o priorytecie {priority}. Podaj nowy priorytet (na podstawie ilości zadań z niższymi priorytetami): {new_priority}")
             if user_response is not None:
                 priority = user_response
             else:
                 return
 
         try:
-            if due_date:  # Sprawdź, czy pole daty wykonania jest niepuste
-                cursor.execute('INSERT INTO tasks (task, done, priority, due_date) VALUES (?, ?, ?, ?)',
-                               (task, False, priority, due_date))
+            # Sprawdź, czy data wykonania została dostarczona
+            if due_date == '':
+                # Jeśli nie, dodaj zadanie bez daty wykonania
+                task_text = f"[{'x' if False else ' '}] {task} - Priorytet: {priority}"
             else:
-                cursor.execute('INSERT INTO tasks (task, done, priority) VALUES (?, ?, ?)', (task, False, priority))
+                # Jeśli tak, dodaj zadanie z datą wykonania
+                task_text = f"[{'x' if False else ' '}] {task} - Priorytet: {priority} - Data wykonania: {due_date}"
 
+            cursor.execute('INSERT INTO tasks (task, done, priority, due_date) VALUES (?, ?, ?, ?)', (task, False, priority, due_date))
             conn.commit()
             task_entry.delete(0, tk.END)
             priority_entry.delete(0, tk.END)

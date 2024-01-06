@@ -35,5 +35,8 @@ def load_tasks(conn, task_listbox):
     cursor.execute('SELECT * FROM tasks ORDER BY priority ASC')
     tasks = cursor.fetchall()
     for task in tasks:
-        task_text = f"[{'x' if task[2] else ' '}] {task[1]} (Priorytet: {task[3]}, Data wykonania: {task[4]})"
+        task_text = f"[{'x' if task[2] else ' '}] {task[1]} (Priorytet: {task[3]}"
+        if task[4]:  # Sprawdź, czy due_date nie jest puste
+            task_text += f", Data wykonania: {task[4]}"
+        task_text += ")"
         task_listbox.insert(tk.END, (task[0], task_text))
