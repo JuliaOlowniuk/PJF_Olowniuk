@@ -170,6 +170,11 @@ class ToDoListApp:
     def delete_task(self):
         delete_task(self.conn, self.task_listbox)
 
+    def add_description(self):
+        add_description(self.conn, self.task_listbox)
+
+    def show_description(self):
+        show_description(self.conn, self.task_listbox)
 
 if tk.TkVersion >= 8.6:
     root = tk.Tk()
