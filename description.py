@@ -15,20 +15,22 @@ def add_description(conn, task_listbox):
             update_task_note(conn, task_id, new_note)
             refresh_task_listbox(conn, task_listbox)
 
+
 def show_description(conn, task_listbox):
     selected_task_indices = task_listbox.curselection()
 
     if selected_task_indices:
-        # Pobierz ID zadania z pierwszego zaznaczonego elementu
         selected_task_index = selected_task_indices[0]
         task_id = task_listbox.get(selected_task_index)[0]
 
         current_note = get_task_note(conn, task_id)
-        if current_note is not None:
-            tk.messagebox.showinfo("Opis zadania", current_note)
-        else:
-            tk.messagebox.showinfo("Opis zadania", "Brak opisu dla tego zadania.")
 
+        if current_note:
+            messagebox.showinfo("Opis zadania", current_note)
+        else:
+            messagebox.showinfo("Opis zadania", "Brak opisu dla tego zadania.")
+    else:
+        messagebox.showinfo("Opis zadania", "Nie wybrano zadania.")
 def get_task_note(conn, task_id):
     cursor = conn.cursor()
     cursor.execute('SELECT note FROM tasks WHERE id=?', (task_id,))

@@ -1,5 +1,4 @@
 import sqlite3
-
 def create_table(conn):
     try:
         cursor = conn.cursor()
@@ -12,7 +11,8 @@ def create_table(conn):
                 task TEXT NOT NULL,
                 done BOOLEAN NOT NULL,
                 priority INTEGER DEFAULT 0,
-                due_date TEXT
+                due_date TEXT,
+                note TEXT
             )
         ''')
         conn.commit()
