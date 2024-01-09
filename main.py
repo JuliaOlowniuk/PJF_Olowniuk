@@ -12,7 +12,6 @@ from sort import sort_tasks
 from todolist_db import create_table
 from search import search_task
 from saveToFile import save_tasks_to_file
-from theme_manager import set_light_theme, set_dark_theme
 from priority_manager import dynamic_priority
 from importCSV import import_from_csv
 from editTask import edit_task_name
@@ -113,12 +112,6 @@ class ToDoListApp:
         self.import_button = tk.Button(self.inner_frame, text="Importuj dane z CSV", command=self.import_data_from_csv)
         self.import_button.grid(row=3, column=3, padx=10, pady=10, sticky="nsew")
 
-        self.light_button = tk.Button(self.inner_frame, text="Jasny motyw", command=self.set_light_theme)
-        self.light_button.grid(row=3, column=1, padx=10, pady=10, sticky="nsew")
-
-        self.dark_button = tk.Button(self.inner_frame, text="Ciemny motyw", command=self.set_dark_theme)
-        self.dark_button.grid(row=3, column=2, padx=10, pady=10, sticky="nsew")
-
         self.load_tasks()
 
     def open_calendar(self):
@@ -153,12 +146,6 @@ class ToDoListApp:
             file_format = os.path.splitext(filename)[1][1:].lower()
             file.close()
             save_tasks_to_file(self.conn, filename, file_format)
-
-    def set_light_theme(self):
-        set_light_theme()
-
-    def set_dark_theme(self):
-        set_dark_theme()
 
     def add_task_with_dynamic_priority(self):
         add_task(self.conn, self.task_entry, self.task_listbox, self.priority_entry, self.due_date_entry)
