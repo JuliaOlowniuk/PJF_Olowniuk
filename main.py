@@ -8,7 +8,7 @@ from add import add_task
 from done import mark_done, mark_undone
 from delete import delete_task, update_priorities_after_delete
 from load import load_tasks
-from sort import sort_tasks
+from sort import sort_tasks, display_unsorted_tasks
 from todolist_db import create_table
 from search import search_task
 from saveToFile import save_tasks_to_file
@@ -66,9 +66,6 @@ class ToDoListApp:
         self.calendar_button = tk.Button(self.inner_frame, text="Kalendarz", command=self.open_calendar)
         self.calendar_button.grid(row=0, column=7, padx=10, pady=10, sticky="w")
 
-        self.sort_button = tk.Button(self.inner_frame, text="Sortuj zadania", command=lambda: sort_tasks(self.conn, self.task_listbox))
-        self.sort_button.grid(row=2, column=2, padx=10, pady=10, sticky="nsew")
-
         self.search_button = tk.Button(self.inner_frame, text="Wyszukaj zadanie", command=lambda: search_task(self.conn, self.task_listbox))
         self.search_button.grid(row=2, column=3, padx=10, pady=10, sticky="nsew")
 
@@ -97,7 +94,7 @@ class ToDoListApp:
         self.task_listbox_scrollbar.config(command=self.task_listbox.yview)
         self.task_listbox_scrollbar.grid(row=0, column=1, sticky="ns")
 
-        for i in range(6):
+        for i in range(8):
             self.inner_frame.grid_columnconfigure(i, weight=1)
 
         self.delete_button = tk.Button(self.inner_frame, text="Usuń zadanie", command=self.delete_task)
@@ -112,8 +109,14 @@ class ToDoListApp:
         self.save_button = tk.Button(self.inner_frame, text="Zapisz do pliku", command=self.save_tasks_to_file)
         self.save_button.grid(row=3, column=0, padx=10, pady=10, sticky="nsew")
 
+        self.sort_button = tk.Button(self.inner_frame, text="Sortuj zadania", command=lambda: sort_tasks(self.conn, self.task_listbox))
+        self.sort_button.grid(row=3, column=1, padx=10, pady=10, sticky="nsew")
+
+        self.unsorted_button = tk.Button(self.inner_frame, text="Nieposortowane zadania",command=lambda: display_unsorted_tasks(self.conn, self.task_listbox))
+        self.unsorted_button.grid(row=3, column=4, padx=10, pady=10, sticky="nsew")
+
         self.import_button = tk.Button(self.inner_frame, text="Importuj dane z CSV", command=self.import_data_from_csv)
-        self.import_button.grid(row=3, column=3, padx=10, pady=10, sticky="nsew")
+        self.import_button.grid(row=3, column=2, padx=10, pady=10, sticky="nsew")
 
         self.load_tasks()
 
