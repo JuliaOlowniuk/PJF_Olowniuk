@@ -5,7 +5,7 @@ from datetime import datetime
 from tkinter import filedialog, simpledialog, messagebox
 import os
 from add import add_task
-from done import mark_done
+from done import mark_done, mark_undone
 from delete import delete_task, update_priorities_after_delete
 from load import load_tasks
 from sort import sort_tasks
@@ -105,6 +105,9 @@ class ToDoListApp:
 
         self.mark_done_button = tk.Button(self.inner_frame, text="Oznacz jako zrobione", command=lambda: mark_done(self.conn, self.task_listbox))
         self.mark_done_button.grid(row=2, column=1, padx=10, pady=10, sticky="nsew")
+
+        self.mark_undone_button = tk.Button(self.inner_frame, text="Oznacz jako niezrobione", command=lambda: mark_undone(self.conn, self.task_listbox))
+        self.mark_undone_button.grid(row=2, column=2, padx=10, pady=10, sticky="nsew")
 
         self.save_button = tk.Button(self.inner_frame, text="Zapisz do pliku", command=self.save_tasks_to_file)
         self.save_button.grid(row=3, column=0, padx=10, pady=10, sticky="nsew")
