@@ -1,5 +1,6 @@
 import tkinter as tk
 from tkinter import simpledialog, messagebox
+from load import refresh_task_listbox
 
 def add_description(conn, task_listbox):
     selected_task_indices = task_listbox.curselection()
@@ -13,8 +14,7 @@ def add_description(conn, task_listbox):
 
         if new_note is not None:
             update_task_note(conn, task_id, new_note)
-            refresh_task_listbox(conn, task_listbox)
-
+            # refresh_task_listbox(conn, task_listbox)  # Usunięto automatyczne odświeżanie
 
 def show_description(conn, task_listbox):
     selected_task_indices = task_listbox.curselection()
@@ -31,17 +31,15 @@ def show_description(conn, task_listbox):
             messagebox.showinfo("Opis zadania", "Brak opisu dla tego zadania.")
     else:
         messagebox.showinfo("Opis zadania", "Nie wybrano zadania.")
+
 def get_task_note(conn, task_id):
     cursor = conn.cursor()
     cursor.execute('SELECT note FROM tasks WHERE id=?', (task_id,))
     result = cursor.fetchone()
-    return result[0] if result else ""
+    return result[0] if result and result[0] is not None else ""
 
 def update_task_note(conn, task_id, new_note):
     cursor = conn.cursor()
     cursor.execute('UPDATE tasks SET note=? WHERE id=?', (new_note, task_id))
     conn.commit()
-
-def refresh_task_listbox(conn, task_listbox):
-    # Nie aktualizuj listy tutaj, zamiast tego zaktualizuj po ponownym kliknięciu na zadanie
-    pass
+    # refresh_task_listbox(conn, task_listbox)  # Usunięto automatyczne odświeżanie

@@ -2,9 +2,9 @@ import sqlite3
 import tkinter as tk
 from tkinter import simpledialog, messagebox
 from load import load_tasks
-def add_task(conn, task_entry, task_listbox, priority_entry, due_date_entry):
+
+def add_task(conn, task_entry, task_listbox, priority, due_date_entry):
     task = task_entry.get()
-    priority = priority_entry.get()
     due_date = due_date_entry.get()  # Pobierz datę wykonania
 
     if task:
@@ -43,8 +43,6 @@ def add_task(conn, task_entry, task_listbox, priority_entry, due_date_entry):
             cursor.execute('INSERT INTO tasks (task, done, priority, due_date) VALUES (?, ?, ?, ?)', (task, False, priority, due_date))
             conn.commit()
             task_entry.delete(0, tk.END)
-            priority_entry.delete(0, tk.END)
-            due_date_entry.delete(0, tk.END)  # Wyczyść pole daty wykonania
             load_tasks(conn, task_listbox)
             print("Zadanie dodane pomyślnie")
         except sqlite3.Error as e:

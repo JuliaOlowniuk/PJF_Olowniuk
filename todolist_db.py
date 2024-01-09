@@ -2,9 +2,6 @@ import sqlite3
 def create_table(conn):
     try:
         cursor = conn.cursor()
-        # Usuń tabelę, jeśli istnieje
-        cursor.execute('DROP TABLE IF EXISTS tasks')
-        # Utwórz nową tabelę
         cursor.execute('''
             CREATE TABLE IF NOT EXISTS tasks (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,

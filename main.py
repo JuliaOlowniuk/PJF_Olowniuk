@@ -2,7 +2,7 @@ import sqlite3
 import tkinter as tk
 from tkcalendar import DateEntry
 from datetime import datetime
-from tkinter import filedialog
+from tkinter import filedialog, simpledialog, messagebox
 import os
 from add import add_task
 from done import mark_done
@@ -72,13 +72,13 @@ class ToDoListApp:
         self.search_button = tk.Button(self.inner_frame, text="Wyszukaj zadanie", command=lambda: search_task(self.conn, self.task_listbox))
         self.search_button.grid(row=2, column=3, padx=10, pady=10, sticky="nsew")
 
-        self.add_description_button = tk.Button(self.inner_frame, text="Dodaj opis",command=lambda: add_description(self.conn, self.task_listbox))
+        self.add_description_button = tk.Button(self.inner_frame, text="Dodaj opis", command=lambda: add_description(self.conn, self.task_listbox))
         self.add_description_button.grid(row=2, column=5, padx=10, pady=10, sticky="nsew")
 
-        self.show_description_button = tk.Button(self.inner_frame, text="Pokaż opis",command=lambda: show_description(self.conn, self.task_listbox))
+        self.show_description_button = tk.Button(self.inner_frame, text="Pokaż opis", command=lambda: show_description(self.conn, self.task_listbox))
         self.show_description_button.grid(row=2, column=6, padx=10, pady=10, sticky="nsew")
 
-        self.edit_description_button = tk.Button(self.inner_frame, text="Edytuj nazwe zadania",command=lambda: edit_task_name(self.conn, self.task_listbox))
+        self.edit_description_button = tk.Button(self.inner_frame, text="Edytuj nazwe zadania", command=lambda: edit_task_name(self.conn, self.task_listbox))
         self.edit_description_button.grid(row=2, column=4, padx=10, pady=10, sticky="nsew")
 
         self.due_date_entry = tk.Entry(self.inner_frame, width=12)
@@ -148,14 +148,15 @@ class ToDoListApp:
             save_tasks_to_file(self.conn, filename, file_format)
 
     def add_task_with_dynamic_priority(self):
-        add_task(self.conn, self.task_entry, self.task_listbox, self.priority_entry, self.due_date_entry)
-        dynamic_priority(self.conn, self.task_listbox, self.priority_entry)
+        priority = dynamic_priority(self.conn, self.task_listbox)
+        add_task(self.conn, self.task_entry, self.task_listbox, priority, self.due_date_entry)
 
     def import_data_from_csv(self):
         import_from_csv(self.conn, self.task_listbox)
 
     def delete_task(self):
         delete_task(self.conn, self.task_listbox)
+        update_priorities_after_delete(self.conn, self.task_listbox)
 
     def add_description(self):
         add_description(self.conn, self.task_listbox)

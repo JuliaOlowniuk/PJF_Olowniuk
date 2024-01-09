@@ -1,38 +1,38 @@
 import tkinter as tk
+from tkinter import messagebox
 from load import load_tasks
 
 def delete_task(conn, task_listbox):
-    selected_task_index = task_listbox.curselection()
-    if selected_task_index:
-        task_id = task_listbox.get(selected_task_index)[0]
+    selected_task_indices = task_listbox.curselection()
 
+    if not selected_task_indices:
+        messagebox.showwarning("Uwaga", "Nie wybrano zadania do usunięcia.")
+        return
+
+    selected_task_index = selected_task_indices[0]
+    task_id, deleted_priority = task_listbox.get(selected_task_index)
+
+    confirmation = messagebox.askyesno("Potwierdzenie", f"Czy na pewno chcesz usunąć zadanie o priorytecie {deleted_priority}?")
+
+    if confirmation:
         cursor = conn.cursor()
-        # Pobierz priorytet usuwanego zadania
-        cursor.execute('SELECT priority FROM tasks WHERE id=?', (task_id,))
-        deleted_priority = cursor.fetchone()[0]
-
-        # Usuń zadanie
         cursor.execute('DELETE FROM tasks WHERE id=?', (task_id,))
         conn.commit()
 
-        # Aktualizuj priorytety pozostałych zadań
-        update_priorities_after_delete(conn, deleted_priority)
-
-        # Wczytaj zadania po usunięciu
+        # Dodaj wywołanie funkcji do aktualizacji priorytetów po usunięciu zadania
+        update_priorities_after_delete(conn, task_listbox)
         load_tasks(conn, task_listbox)
 
-def update_priorities_after_delete(conn, deleted_priority):
+def update_priorities_after_delete(conn, task_listbox):
+    # Aktualizuj priorytety dla pozostałych zadań o niższym priorytecie
+    selected_task_indices = task_listbox.curselection()
+
+    if not selected_task_indices:
+        return
+
+    selected_task_index = selected_task_indices[0]
+    deleted_priority = task_listbox.get(selected_task_index)[1]
+
     cursor = conn.cursor()
-    # Pobierz zadania z priorytetem większym niż usuwane zadanie
-    cursor.execute('SELECT id, priority FROM tasks WHERE priority > ?', (deleted_priority,))
-    tasks_to_update = cursor.fetchall()
-
-    # Zaktualizuj priorytety
-    for task in tasks_to_update:
-        task_id = task[0]
-        current_priority = task[1]
-        new_priority = max(1, current_priority - 1)
-        cursor.execute('UPDATE tasks SET priority=? WHERE id=?', (new_priority, task_id))
-
-    # Zatwierdź zmiany
+    cursor.execute('UPDATE tasks SET priority = priority - 1 WHERE priority > ?', (deleted_priority,))
     conn.commit()
