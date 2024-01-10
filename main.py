@@ -155,7 +155,14 @@ class ToDoListApp:
 
     def add_task_with_dynamic_priority(self):
         priority = dynamic_priority(self.conn, self.task_listbox)
-        add_task(self.conn, self.task_entry, self.task_listbox, priority, self.due_date_entry)
+
+        # Sprawdź, czy due_date_entry jest puste
+        due_date = self.due_date_entry.get().strip()
+        if due_date == "":
+            due_date = None  # Ustaw na None, jeśli nie podano
+
+        # Wywołaj funkcję add_task, przekazując odpowiednie argumenty
+        add_task(self.conn, self.task_entry, self.task_listbox, priority, due_date)
 
     def import_data_from_csv(self):
         import_from_csv(self.conn, self.task_listbox)

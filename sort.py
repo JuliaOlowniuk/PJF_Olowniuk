@@ -58,9 +58,13 @@ def sort_by_due_date_desc(conn, task_listbox):
 def display_sorted_tasks(task_listbox, tasks):
     task_listbox.delete(0, tk.END)
     for task in tasks:
-        task_text = f"[{'x' if task[2] else ' '}] {task[1]} - Priorytet: {task[3]} - Data wykonania: {format_due_date(task[4])}"
-        task_listbox.insert(tk.END, (task[0], task_text))
+        task_text = f"[{'x' if task[2] else ' '}] {task[1]} - Priorytet: {task[3]}"
 
+        # Dodaj informację o dacie wykonania tylko, jeśli jest dostępna
+        if len(task) > 4 and task[4]:
+            task_text += f" - Data wykonania: {format_due_date(task[4])}"
+
+        task_listbox.insert(tk.END, (task[0], task_text))
 
 def format_due_date(due_date):
     try:
@@ -69,11 +73,17 @@ def format_due_date(due_date):
     except ValueError:
         return due_date
 
+
 def display_unsorted_tasks(conn, task_listbox):
     cursor = conn.cursor()
     cursor.execute('SELECT * FROM tasks')
     tasks = cursor.fetchall()
     task_listbox.delete(0, tk.END)
     for task in tasks:
-        task_text = f"[{'x' if task[2] else ' '}] {task[1]} - Priorytet: {task[3]} - Data wykonania: {format_due_date(task[4])}"
+        task_text = f"[{'x' if task[2] else ' '}] {task[1]} - Priorytet: {task[3]}"
+
+        # Dodaj informację o dacie wykonania tylko, jeśli jest dostępna
+        if len(task) > 4 and task[4]:
+            task_text += f" - Data wykonania: {format_due_date(task[4])}"
+
         task_listbox.insert(tk.END, (task[0], task_text))
