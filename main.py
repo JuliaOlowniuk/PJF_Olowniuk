@@ -177,6 +177,6 @@ else:
 
 app = ToDoListApp()
 app.initialize(root)
-root.geometry("800x600")
+root.geometry("1300x400")
 root.resizable(True, True)
 root.mainloop()
