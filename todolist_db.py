@@ -1,6 +1,11 @@
 import sqlite3
+from user_db import create_users_table
+
 def create_table(conn):
     try:
+        # Najpierw sprawdź, czy tabela users istnieje
+        create_users_table(conn)
+
         cursor = conn.cursor()
         cursor.execute('''
             CREATE TABLE IF NOT EXISTS tasks (
@@ -9,10 +14,12 @@ def create_table(conn):
                 done BOOLEAN NOT NULL,
                 priority INTEGER DEFAULT 0,
                 due_date TEXT,
-                note TEXT
+                note TEXT,
+                user_id INTEGER NOT NULL,
+                FOREIGN KEY (user_id) REFERENCES users(id)
             )
         ''')
         conn.commit()
-        print("Tabela utworzona pomyślnie.")
+        print("Tabela zadań utworzona pomyślnie.")
     except sqlite3.Error as e:
-        print(f"Błąd SQLite przy tworzeniu tabeli: {e}")
+        print(f"Błąd SQLite przy tworzeniu tabeli zadań: {e}")

@@ -80,7 +80,7 @@ class ToDoListApp:
                                                  command=lambda: show_description(self.conn, self.task_listbox))
         self.show_description_button.grid(row=2, column=6, padx=10, pady=10, sticky="nsew")
 
-        self.edit_description_button = tk.Button(self.inner_frame, text="Edytuj nazwe zadania",
+        self.edit_description_button = tk.Button(self.inner_frame, text="Edytuj nazwę zadania",
                                                  command=lambda: edit_task_name(self.conn, self.task_listbox))
         self.edit_description_button.grid(row=2, column=4, padx=10, pady=10, sticky="nsew")
 
@@ -133,7 +133,8 @@ class ToDoListApp:
         self.import_button = tk.Button(self.inner_frame, text="Importuj dane z CSV", command=self.import_data_from_csv)
         self.import_button.grid(row=3, column=2, padx=10, pady=10, sticky="nsew")
 
-        self.set_notification_button = tk.Button(self.inner_frame, text="Ustaw powiadomienie",command=lambda: set_notification_time(self.conn, self.task_listbox))
+        self.set_notification_button = tk.Button(self.inner_frame, text="Ustaw powiadomienie",
+                                                 command=lambda: set_notification_time(self.conn, self.task_listbox))
         self.set_notification_button.grid(row=2, column=8, padx=10, pady=10, sticky="nsew")
 
         self.load_tasks()
