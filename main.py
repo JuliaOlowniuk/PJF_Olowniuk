@@ -2,6 +2,7 @@ import sqlite3
 import tkinter as tk
 from tkcalendar import DateEntry
 from datetime import datetime
+from notification import set_notification_time
 from tkinter import filedialog, simpledialog, messagebox
 import os
 from add import add_task
@@ -131,6 +132,9 @@ class ToDoListApp:
 
         self.import_button = tk.Button(self.inner_frame, text="Importuj dane z CSV", command=self.import_data_from_csv)
         self.import_button.grid(row=3, column=2, padx=10, pady=10, sticky="nsew")
+
+        self.set_notification_button = tk.Button(self.inner_frame, text="Ustaw powiadomienie",command=lambda: set_notification_time(self.conn, self.task_listbox))
+        self.set_notification_button.grid(row=2, column=8, padx=10, pady=10, sticky="nsew")
 
         self.load_tasks()
 
