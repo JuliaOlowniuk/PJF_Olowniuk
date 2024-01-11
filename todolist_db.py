@@ -3,7 +3,7 @@ from user_db import create_users_table
 
 def create_table(conn):
     try:
-        # Najpierw sprawdź, czy tabela users istnieje
+
         create_users_table(conn)
 
         cursor = conn.cursor()

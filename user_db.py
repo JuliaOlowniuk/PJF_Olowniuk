@@ -1,6 +1,5 @@
 import sqlite3
 import bcrypt
-
 def create_users_table(conn):
     try:
         cursor = conn.cursor()
@@ -30,7 +29,6 @@ def authenticate_user(conn, username, password):
         return True
     else:
         return False
-
 def register_new_user(conn, username, password):
     hashed_password = hash_password(password)
     cursor = conn.cursor()

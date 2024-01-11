@@ -211,7 +211,6 @@ class ToDoListApp:
     def show_description(self):
         show_description(self.conn, self.task_listbox)
 
-
 if tk.TkVersion >= 8.6:
     root = tk.Tk()
 else:
