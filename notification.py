@@ -1,8 +1,9 @@
 import sqlite3
 from datetime import datetime, timedelta
 from tkinter import simpledialog, messagebox
+from plyer import notification
 import schedule
-from win10toast import ToastNotifier
+
 
 def check_due_dates_and_notify(conn):
     cursor = conn.cursor()
@@ -16,13 +17,14 @@ def check_due_dates_and_notify(conn):
         if due_date == today:
             show_notification(task[1])
 
+    # Uruchomienie zaplanowanych zadań
+    schedule.run_pending()
+
 def show_notification(task_name):
-    toaster = ToastNotifier()
-    toaster.show_toast(
-        "Zadanie do wykonania!",
-        f'Dziś jest termin wykonania zadania: {task_name}',
-        duration=10,  # Czas trwania powiadomienia w sekundach
-        threaded=True
+    notification.notify(
+        title="Zadanie do wykonania!",
+        message=f'Dziś jest termin wykonania zadania: {task_name}',
+        timeout=10  # Czas trwania powiadomienia w sekundach
     )
 
 def set_notification_time(conn, task_listbox):
