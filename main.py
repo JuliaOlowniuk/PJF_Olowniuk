@@ -10,12 +10,13 @@ from delete import delete_task, update_priorities_after_delete
 from load import load_tasks
 from sort import sort_tasks, display_unsorted_tasks
 from todolist_db import create_table
-from search import search_task,undo_search
+from search import search_task, undo_search
 from saveToFile import save_tasks_to_file
 from priority_manager import dynamic_priority
 from importCSV import import_from_csv
 from editTask import edit_task_name
 from description import add_description, show_description
+
 
 class ToDoListApp:
     def initialize(self, root):
@@ -66,16 +67,20 @@ class ToDoListApp:
         self.calendar_button = tk.Button(self.inner_frame, text="Kalendarz", command=self.open_calendar)
         self.calendar_button.grid(row=0, column=7, padx=10, pady=10, sticky="w")
 
-        self.search_button = tk.Button(self.inner_frame, text="Wyszukaj zadanie", command=lambda: search_task(self.conn, self.task_listbox))
+        self.search_button = tk.Button(self.inner_frame, text="Wyszukaj zadanie",
+                                       command=lambda: search_task(self.conn, self.task_listbox))
         self.search_button.grid(row=2, column=3, padx=10, pady=10, sticky="nsew")
 
-        self.add_description_button = tk.Button(self.inner_frame, text="Dodaj opis", command=lambda: add_description(self.conn, self.task_listbox))
+        self.add_description_button = tk.Button(self.inner_frame, text="Dodaj opis",
+                                                command=lambda: add_description(self.conn, self.task_listbox))
         self.add_description_button.grid(row=2, column=5, padx=10, pady=10, sticky="nsew")
 
-        self.show_description_button = tk.Button(self.inner_frame, text="Pokaż opis", command=lambda: show_description(self.conn, self.task_listbox))
+        self.show_description_button = tk.Button(self.inner_frame, text="Pokaż opis",
+                                                 command=lambda: show_description(self.conn, self.task_listbox))
         self.show_description_button.grid(row=2, column=6, padx=10, pady=10, sticky="nsew")
 
-        self.edit_description_button = tk.Button(self.inner_frame, text="Edytuj nazwe zadania", command=lambda: edit_task_name(self.conn, self.task_listbox))
+        self.edit_description_button = tk.Button(self.inner_frame, text="Edytuj nazwe zadania",
+                                                 command=lambda: edit_task_name(self.conn, self.task_listbox))
         self.edit_description_button.grid(row=2, column=4, padx=10, pady=10, sticky="nsew")
 
         self.due_date_entry = tk.Entry(self.inner_frame, width=12)
@@ -88,7 +93,8 @@ class ToDoListApp:
         self.task_listbox_frame.grid(row=1, column=0, columnspan=4, padx=10, pady=10, sticky="nsew")
 
         self.task_listbox_scrollbar = tk.Scrollbar(self.task_listbox_frame, orient=tk.VERTICAL)
-        self.task_listbox = tk.Listbox(self.task_listbox_frame, selectmode=tk.SINGLE, width=80, yscrollcommand=self.task_listbox_scrollbar.set)
+        self.task_listbox = tk.Listbox(self.task_listbox_frame, selectmode=tk.SINGLE, width=80,
+                                       yscrollcommand=self.task_listbox_scrollbar.set)
         self.task_listbox.grid(row=0, column=0, sticky="nsew")
 
         self.task_listbox_scrollbar.config(command=self.task_listbox.yview)
@@ -100,22 +106,27 @@ class ToDoListApp:
         self.delete_button = tk.Button(self.inner_frame, text="Usuń zadanie", command=self.delete_task)
         self.delete_button.grid(row=2, column=0, padx=10, pady=10, sticky="nsew")
 
-        self.mark_done_button = tk.Button(self.inner_frame, text="Oznacz jako zrobione", command=lambda: mark_done(self.conn, self.task_listbox))
+        self.mark_done_button = tk.Button(self.inner_frame, text="Oznacz jako zrobione",
+                                          command=lambda: mark_done(self.conn, self.task_listbox))
         self.mark_done_button.grid(row=2, column=1, padx=10, pady=10, sticky="nsew")
 
-        self.undo_search_button = tk.Button(self.inner_frame, text="Cofnij wyszukiwanie",command=lambda: undo_search(self.conn, self.task_listbox))
+        self.undo_search_button = tk.Button(self.inner_frame, text="Cofnij wyszukiwanie",
+                                            command=lambda: undo_search(self.conn, self.task_listbox))
         self.undo_search_button.grid(row=2, column=7, padx=10, pady=10, sticky="w")
 
-        self.mark_undone_button = tk.Button(self.inner_frame, text="Oznacz jako niezrobione", command=lambda: mark_undone(self.conn, self.task_listbox))
+        self.mark_undone_button = tk.Button(self.inner_frame, text="Oznacz jako niezrobione",
+                                            command=lambda: mark_undone(self.conn, self.task_listbox))
         self.mark_undone_button.grid(row=2, column=2, padx=10, pady=10, sticky="nsew")
 
         self.save_button = tk.Button(self.inner_frame, text="Zapisz do pliku", command=self.save_tasks_to_file)
         self.save_button.grid(row=3, column=0, padx=10, pady=10, sticky="nsew")
 
-        self.sort_button = tk.Button(self.inner_frame, text="Sortuj zadania", command=lambda: sort_tasks(self.conn, self.task_listbox))
+        self.sort_button = tk.Button(self.inner_frame, text="Sortuj zadania",
+                                     command=lambda: sort_tasks(self.conn, self.task_listbox))
         self.sort_button.grid(row=3, column=1, padx=10, pady=10, sticky="nsew")
 
-        self.unsorted_button = tk.Button(self.inner_frame, text="Nieposortowane zadania",command=lambda: display_unsorted_tasks(self.conn, self.task_listbox))
+        self.unsorted_button = tk.Button(self.inner_frame, text="Nieposortowane zadania",
+                                         command=lambda: display_unsorted_tasks(self.conn, self.task_listbox))
         self.unsorted_button.grid(row=3, column=4, padx=10, pady=10, sticky="nsew")
 
         self.import_button = tk.Button(self.inner_frame, text="Importuj dane z CSV", command=self.import_data_from_csv)
@@ -132,7 +143,8 @@ class ToDoListApp:
             self.due_date_entry.insert(0, selected_date)
             top.destroy()
 
-        cal = DateEntry(top, width=12, year=datetime.now().year, month=datetime.now().month, day=datetime.now().day,
+        cal = DateEntry(top, width=12, year=datetime.now().year, month=datetime.now().month,
+                        day=datetime.now().day,
                         date_pattern='yyyy-mm-dd', background='darkblue', foreground='white', borderwidth=2)
         cal.grid(row=0, column=0, padx=10, pady=10, sticky="w")
 
@@ -157,7 +169,21 @@ class ToDoListApp:
             save_tasks_to_file(self.conn, filename, file_format)
 
     def add_task_with_dynamic_priority(self):
-        priority = dynamic_priority(self.conn, self.task_listbox)
+        # Pobierz zadanie
+        task = self.task_entry.get().strip()
+
+        # Pobierz priorytet
+        priority_entry_value = self.priority_entry.get().strip()
+
+        if priority_entry_value:
+            try:
+                priority = int(priority_entry_value)
+            except ValueError:
+                messagebox.showwarning("Uwaga", "Priorytet musi być liczbą całkowitą!")
+                return
+        else:
+            # Jeśli pole priorytetu jest puste, uzyskaj priorytet dynamicznie
+            priority = dynamic_priority(self.conn, self.task_listbox)
 
         # Sprawdź, czy due_date_entry jest puste
         due_date = self.due_date_entry.get().strip()
@@ -165,7 +191,7 @@ class ToDoListApp:
             due_date = None  # Ustaw na None, jeśli nie podano
 
         # Wywołaj funkcję add_task, przekazując odpowiednie argumenty
-        add_task(self.conn, self.task_entry, self.task_listbox, priority, due_date)
+        add_task(self.conn, self.task_entry, self.task_listbox, self.priority_entry, self.due_date_entry, priority)
 
     def import_data_from_csv(self):
         import_from_csv(self.conn, self.task_listbox)
@@ -179,6 +205,7 @@ class ToDoListApp:
 
     def show_description(self):
         show_description(self.conn, self.task_listbox)
+
 
 if tk.TkVersion >= 8.6:
     root = tk.Tk()
