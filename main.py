@@ -3,7 +3,7 @@ import tkinter as tk
 import tkinter.ttk as ttk
 from tkcalendar import DateEntry
 from datetime import datetime
-from notification import set_notification_time
+from notification import set_notification_time, show_tasks_for_today
 from tkinter import filedialog, simpledialog, messagebox
 import os
 from add import add_task
@@ -114,6 +114,10 @@ class ToDoListApp:
 
         self.add_button = tk.Button(self.inner_frame, text="Dodaj zadanie", command=self.add_task_with_dynamic_priority)
         self.add_button.grid(row=0, column=6, padx=10, pady=10, sticky="w")
+
+        self.show_today_button = tk.Button(self.inner_frame, text="Zadania na dzisiaj",
+                                           command=self.show_tasks_for_today)
+        self.show_today_button.grid(row=3, column=5, padx=10, pady=10, sticky="nsew")
 
         self.task_listbox_frame = tk.Frame(self.inner_frame)
         self.task_listbox_frame.grid(row=1, column=0, columnspan=4, padx=10, pady=10, sticky="nsew")
@@ -255,6 +259,8 @@ class ToDoListApp:
     def show_description(self):
         show_description(self.conn, self.task_listbox)
 
+    def show_tasks_for_today(self):
+        show_tasks_for_today(self.conn)
     def change_display_mode(self, event=None):
         selected_view = self.change_view_combobox.get()
 

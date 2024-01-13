@@ -1,9 +1,24 @@
 import sqlite3
-from datetime import datetime, timedelta
 from tkinter import simpledialog, messagebox
 from plyer import notification
 import schedule
+from datetime import datetime, timedelta
+from tkinter import messagebox
 
+def show_tasks_for_today(conn):
+    today = datetime.today().date()
+    tasks_for_today = get_tasks_for_date(conn, today)
+
+    if not tasks_for_today:
+        messagebox.showinfo("Zadania na dzisiaj", "Brak zaplanowanych zadań na dzisiaj.")
+    else:
+        tasks_text = "\n".join([f"- {task[1]}" for task in tasks_for_today])
+        messagebox.showinfo("Zadania na dzisiaj", f"Zaplanowane zadania na dzisiaj:\n\n{tasks_text}")
+
+def get_tasks_for_date(conn, date):
+    cursor = conn.cursor()
+    cursor.execute('SELECT * FROM tasks WHERE due_date=? AND done=0', (date,))
+    return cursor.fetchall()
 
 def check_due_dates_and_notify(conn):
     cursor = conn.cursor()
