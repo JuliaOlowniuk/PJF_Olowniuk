@@ -64,11 +64,10 @@ class ToDoListApp:
         self.weekly_planner_frame = tk.Frame(self.inner_frame)
 
         # Przycisk "Zmiana widoku" - ComboBox
-        self.change_view_combobox = ttk.Combobox(self.inner_frame, values=["Lista zadań", "Weekly Planner"])
+        self.change_view_combobox = ttk.Combobox(self.inner_frame, values=["To-Do List", "Weekly Planner"])
         self.change_view_combobox.grid(row=3, column=4, padx=10, pady=10, sticky="nsew")
-        self.change_view_combobox.set("Lista zadań")  # Domyślny wybór
-        self.change_view_combobox.bind("<<ComboboxSelected>>", self.toggle_display_mode)
-
+        self.change_view_combobox.set("To-Do List")  # Domyślny wybór
+        self.change_view_combobox.bind("<<ComboboxSelected>>",self.change_display_mode)
         self.create_widgets()
 
     def on_frame_configure(self, event):
@@ -165,7 +164,7 @@ class ToDoListApp:
 
         self.weekly_planner_frame = tk.Frame(self.inner_frame)
 
-        self.change_view_button = tk.Button(self.inner_frame, text="Zmień widok", command=self.toggle_display_mode)
+        self.change_view_button = tk.Button(self.inner_frame, text="Zmień widok", command=self.change_display_mode)
         self.change_view_button.grid(row=3, column=4, padx=10, pady=10, sticky="nsew")
 
         self.weekday_combobox = ttk.Combobox(self.inner_frame, values=self.weekdays)
@@ -256,24 +255,43 @@ class ToDoListApp:
     def show_description(self):
         show_description(self.conn, self.task_listbox)
 
-    def toggle_display_mode(self):
-        if self.display_mode == DisplayMode.TODO_LIST:
-            self.display_mode = DisplayMode.WEEKLY_PLANNER
-            self.change_view_button.config(text="Zmień na listę zadań")
+    def change_display_mode(self, event=None):
+        selected_view = self.change_view_combobox.get()
 
-            # Stwórz obiekt WeeklyPlanner tylko raz, jeśli jeszcze nie istnieje
-            if not self.weekly_planner:
-                self.weekly_planner = WeeklyPlanner()
-                self.weekly_planner.create_widgets(self.inner_frame, self.conn, self.task_listbox)
-        else:
+        if selected_view == "To-Do List" and self.display_mode == DisplayMode.TODO_LIST:
+            return
+        elif selected_view == "Weekly Planner" and self.display_mode == DisplayMode.WEEKLY_PLANNER:
+            return
+
+        if selected_view == "To-Do List":
             self.display_mode = DisplayMode.TODO_LIST
-            self.change_view_button.config(text="Zmień na tygodniowy planner")
+            self.change_view_combobox.set("To-Do List")  # Domyślny wybór
+            self.change_display_to_todo_list()
+        elif selected_view == "Weekly Planner":
+            self.display_mode = DisplayMode.WEEKLY_PLANNER
+            self.change_view_combobox.set("Weekly Planner")  # Domyślny wybór
+            self.change_display_to_weekly_planner()
+    def change_display_to_todo_list(self):
+        # Usuń widżety związane z tygodniowym plannerem
+        if self.weekly_planner:
+            self.weekly_planner.weekday_combobox.grid_forget()
+            self.weekly_planner.add_task_button.grid_forget()
+            self.weekly_planner = None
 
-            # Usuń widgety związane z tygodniowym plannerem
-            if self.weekly_planner:
-                self.weekly_planner.weekday_combobox.grid_forget()
-                self.weekly_planner.add_task_button.grid_forget()
-                self.weekly_planner = None
+        # Przywróć widżety związane z To-Do List
+        self.weekday_combobox.grid(row=4, column=0, padx=10, pady=10, sticky="w")
+        self.add_task_button.grid(row=4, column=1, padx=10, pady=10, sticky="w")
+
+
+    def change_display_to_weekly_planner(self):
+        # Usuń widżety związane z To-Do List
+        self.weekday_combobox.grid_forget()
+        self.add_task_button.grid_forget()
+
+        # Stwórz obiekt WeeklyPlanner tylko raz, jeśli jeszcze nie istnieje
+        if not self.weekly_planner:
+            self.weekly_planner = WeeklyPlanner()
+            self.weekly_planner.create_widgets(self.inner_frame, self.conn, self.task_listbox)
 
     def add_task_to_day(self):
         selected_weekday = self.weekday_combobox.get()
