@@ -3,7 +3,7 @@ import tkinter as tk
 from tkinter import simpledialog, messagebox
 from load import load_tasks
 
-def add_task(conn, task_entry_widget, task_listbox, priority_entry, due_date_entry, dynamic_priority_value=None):
+def add_task(conn, task_entry_widget, task_listbox, priority_entry, due_date_entry, dynamic_priority_value=None, display_mode=1, weekday_combobox=None):
     task = task_entry_widget.get().strip()
     priority = priority_entry.get().strip()
     due_date = due_date_entry.get().strip()
@@ -38,9 +38,13 @@ def add_task(conn, task_entry_widget, task_listbox, priority_entry, due_date_ent
 
         try:
             # Sprawdź, czy data wykonania została dostarczona
-            if due_date == '':
+            if due_date == '' and display_mode == 1:
                 # Jeśli nie, dodaj zadanie bez daty wykonania
                 task_text = f"[{'x' if False else ' '}] {task} - Priorytet: {priority}"
+            elif display_mode == 2 and weekday_combobox is not None:
+                # Jeśli jest ustawiony widok na Weekly Planner i dostarczono combobox z dniem tygodnia
+                selected_weekday = weekday_combobox.get()
+                task_text = f"[{'x' if False else ' '}] {task} - Priorytet: {priority} - Data wykonania: {selected_weekday}"
             else:
                 # Jeśli tak, dodaj zadanie z datą wykonania
                 task_text = f"[{'x' if False else ' '}] {task} - Priorytet: {priority} - Data wykonania: {due_date}"

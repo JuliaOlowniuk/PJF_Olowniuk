@@ -1,5 +1,6 @@
 import sqlite3
 import tkinter as tk
+import tkinter.ttk as ttk
 from tkcalendar import DateEntry
 from datetime import datetime
 from notification import set_notification_time
@@ -18,15 +19,25 @@ from importCSV import import_from_csv
 from editTask import edit_task_name
 from description import add_description, show_description
 from chart import display_pie_chart
+from weekly_planner import WeeklyPlanner
+from enum import Enum
 
+class DisplayMode(Enum):
+    TODO_LIST = 1
+    WEEKLY_PLANNER = 2
 
 class ToDoListApp:
+    weekdays = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
+
     def initialize(self, root):
         self.root = root
         self.root.title("ToDo List App")
 
         self.conn = sqlite3.connect('todolist.db')
         create_table(self.conn)
+
+        self.display_mode = DisplayMode.TODO_LIST
+        self.weekly_planner = None
 
         self.main_frame = tk.Frame(root)
         self.main_frame.pack(fill=tk.BOTH, expand=True)
@@ -37,7 +48,8 @@ class ToDoListApp:
         self.scrollbar_x = tk.Scrollbar(self.main_frame, orient=tk.HORIZONTAL)
         self.scrollbar_x.pack(side=tk.BOTTOM, fill=tk.X)
 
-        self.canvas = tk.Canvas(self.main_frame, yscrollcommand=self.scrollbar_y.set, xscrollcommand=self.scrollbar_x.set)
+        self.canvas = tk.Canvas(self.main_frame, yscrollcommand=self.scrollbar_y.set,
+                                xscrollcommand=self.scrollbar_x.set)
         self.canvas.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
 
         self.scrollbar_y.config(command=self.canvas.yview)
@@ -47,6 +59,15 @@ class ToDoListApp:
         self.canvas.create_window((0, 0), window=self.inner_frame, anchor=tk.NW)
 
         self.inner_frame.bind("<Configure>", self.on_frame_configure)
+
+        # Dodaj ramkę dla tygodniowego planu
+        self.weekly_planner_frame = tk.Frame(self.inner_frame)
+
+        # Przycisk "Zmiana widoku" - ComboBox
+        self.change_view_combobox = ttk.Combobox(self.inner_frame, values=["Lista zadań", "Weekly Planner"])
+        self.change_view_combobox.grid(row=3, column=4, padx=10, pady=10, sticky="nsew")
+        self.change_view_combobox.set("Lista zadań")  # Domyślny wybór
+        self.change_view_combobox.bind("<<ComboboxSelected>>", self.toggle_display_mode)
 
         self.create_widgets()
 
@@ -142,6 +163,24 @@ class ToDoListApp:
                                                  command=lambda: set_notification_time(self.conn, self.task_listbox))
         self.set_notification_button.grid(row=2, column=8, padx=10, pady=10, sticky="nsew")
 
+        self.weekly_planner_frame = tk.Frame(self.inner_frame)
+
+        self.change_view_button = tk.Button(self.inner_frame, text="Zmień widok", command=self.toggle_display_mode)
+        self.change_view_button.grid(row=3, column=4, padx=10, pady=10, sticky="nsew")
+
+        self.weekday_combobox = ttk.Combobox(self.inner_frame, values=self.weekdays)
+        self.weekday_combobox.grid(row=4, column=0, padx=10, pady=10, sticky="w")
+
+        self.add_task_to_day_button = tk.Button(self.inner_frame, text="Dodaj zadanie do dnia",
+                                                command=self.add_task_to_day)
+        self.add_task_to_day_button.grid(row=4, column=1, padx=10, pady=10, sticky="w")
+
+        self.weekday_combobox = ttk.Combobox(self.inner_frame, values=self.weekdays)
+        self.weekday_combobox.grid(row=4, column=0, padx=10, pady=10, sticky="w")
+
+        self.add_task_button = tk.Button(self.inner_frame, text="Dodaj zadanie do dnia", command=self.add_task_to_day)
+        self.add_task_button.grid(row=4, column=1, padx=10, pady=10, sticky="w")
+
         self.load_tasks()
 
     def open_calendar(self):
@@ -179,6 +218,7 @@ class ToDoListApp:
             save_tasks_to_file(self.conn, filename, file_format)
 
     def add_task_with_dynamic_priority(self):
+
         # Pobierz zadanie
         task = self.task_entry.get().strip()
 
@@ -215,6 +255,34 @@ class ToDoListApp:
 
     def show_description(self):
         show_description(self.conn, self.task_listbox)
+
+    def toggle_display_mode(self):
+        if self.display_mode == DisplayMode.TODO_LIST:
+            self.display_mode = DisplayMode.WEEKLY_PLANNER
+            self.change_view_button.config(text="Zmień na listę zadań")
+
+            # Stwórz obiekt WeeklyPlanner tylko raz, jeśli jeszcze nie istnieje
+            if not self.weekly_planner:
+                self.weekly_planner = WeeklyPlanner()
+                self.weekly_planner.create_widgets(self.inner_frame, self.conn, self.task_listbox)
+        else:
+            self.display_mode = DisplayMode.TODO_LIST
+            self.change_view_button.config(text="Zmień na tygodniowy planner")
+
+            # Usuń widgety związane z tygodniowym plannerem
+            if self.weekly_planner:
+                self.weekly_planner.weekday_combobox.grid_forget()
+                self.weekly_planner.add_task_button.grid_forget()
+                self.weekly_planner = None
+
+    def add_task_to_day(self):
+        selected_weekday = self.weekday_combobox.get()
+        if selected_weekday:
+            add_task(self.conn, self.task_listbox, priority=1, due_date=selected_weekday)
+    def add_task_to_week(self):
+        selected_weekday = self.weekly_planner_combobox.get()
+        if selected_weekday:
+            add_task(self.conn, self.task_listbox, priority=1, due_date=selected_weekday)
 
 if tk.TkVersion >= 8.6:
     root = tk.Tk()
