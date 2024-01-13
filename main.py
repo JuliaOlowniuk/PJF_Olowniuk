@@ -67,13 +67,15 @@ class ToDoListApp:
         self.change_view_combobox = ttk.Combobox(self.inner_frame, values=["To-Do List", "Weekly Planner"])
         self.change_view_combobox.grid(row=3, column=4, padx=10, pady=10, sticky="nsew")
         self.change_view_combobox.set("To-Do List")  # Domyślny wybór
-        self.change_view_combobox.bind("<<ComboboxSelected>>",self.change_display_mode)
+        self.change_view_combobox.bind("<<ComboboxSelected>>", self.change_display_mode)
+
         self.create_widgets()
 
     def on_frame_configure(self, event):
         self.canvas.configure(scrollregion=self.canvas.bbox("all"))
 
     def create_widgets(self):
+        # Ustawienie responsywności dla poszczególnych elementów
         self.task_entry = tk.Entry(self.inner_frame, width=50)
         self.task_entry.grid(row=0, column=0, padx=10, pady=10, sticky="w")
 
@@ -89,24 +91,19 @@ class ToDoListApp:
         self.calendar_button = tk.Button(self.inner_frame, text="Kalendarz", command=self.open_calendar)
         self.calendar_button.grid(row=0, column=7, padx=10, pady=10, sticky="w")
 
-        self.search_button = tk.Button(self.inner_frame, text="Wyszukaj zadanie",
-                                       command=lambda: search_task(self.conn, self.task_listbox))
+        self.search_button = tk.Button(self.inner_frame, text="Wyszukaj zadanie", command=lambda: search_task(self.conn, self.task_listbox))
         self.search_button.grid(row=2, column=3, padx=10, pady=10, sticky="nsew")
 
-        self.display_chart_button = tk.Button(self.inner_frame, text="Wyświetl wykres",
-                                              command=lambda: display_pie_chart(self.conn, self.task_listbox))
+        self.display_chart_button = tk.Button(self.inner_frame, text="Wyświetl wykres", command=lambda: display_pie_chart(self.conn, self.task_listbox))
         self.display_chart_button.grid(row=3, column=3, padx=10, pady=10, sticky="nsew")
 
-        self.add_description_button = tk.Button(self.inner_frame, text="Dodaj opis",
-                                                command=lambda: add_description(self.conn, self.task_listbox))
+        self.add_description_button = tk.Button(self.inner_frame, text="Dodaj opis", command=lambda: add_description(self.conn, self.task_listbox))
         self.add_description_button.grid(row=2, column=5, padx=10, pady=10, sticky="nsew")
 
-        self.show_description_button = tk.Button(self.inner_frame, text="Pokaż opis",
-                                                 command=lambda: show_description(self.conn, self.task_listbox))
+        self.show_description_button = tk.Button(self.inner_frame, text="Pokaż opis", command=lambda: show_description(self.conn, self.task_listbox))
         self.show_description_button.grid(row=2, column=6, padx=10, pady=10, sticky="nsew")
 
-        self.edit_description_button = tk.Button(self.inner_frame, text="Edytuj nazwę zadania",
-                                                 command=lambda: edit_task_name(self.conn, self.task_listbox))
+        self.edit_description_button = tk.Button(self.inner_frame, text="Edytuj nazwę zadania", command=lambda: edit_task_name(self.conn, self.task_listbox))
         self.edit_description_button.grid(row=2, column=4, padx=10, pady=10, sticky="nsew")
 
         self.due_date_entry = tk.Entry(self.inner_frame, width=12)
@@ -115,8 +112,7 @@ class ToDoListApp:
         self.add_button = tk.Button(self.inner_frame, text="Dodaj zadanie", command=self.add_task_with_dynamic_priority)
         self.add_button.grid(row=0, column=6, padx=10, pady=10, sticky="w")
 
-        self.show_today_button = tk.Button(self.inner_frame, text="Zadania na dzisiaj",
-                                           command=self.show_tasks_for_today)
+        self.show_today_button = tk.Button(self.inner_frame, text="Zadania na dzisiaj", command=self.show_tasks_for_today)
         self.show_today_button.grid(row=3, column=5, padx=10, pady=10, sticky="nsew")
 
         self.task_listbox_frame = tk.Frame(self.inner_frame)
@@ -136,34 +132,28 @@ class ToDoListApp:
         self.delete_button = tk.Button(self.inner_frame, text="Usuń zadanie", command=self.delete_task)
         self.delete_button.grid(row=2, column=0, padx=10, pady=10, sticky="nsew")
 
-        self.mark_done_button = tk.Button(self.inner_frame, text="Oznacz jako zrobione",
-                                          command=lambda: mark_done(self.conn, self.task_listbox))
+        self.mark_done_button = tk.Button(self.inner_frame, text="Oznacz jako zrobione", command=lambda: mark_done(self.conn, self.task_listbox))
         self.mark_done_button.grid(row=2, column=1, padx=10, pady=10, sticky="nsew")
 
-        self.undo_search_button = tk.Button(self.inner_frame, text="Cofnij wyszukiwanie",
-                                            command=lambda: undo_search(self.conn, self.task_listbox))
+        self.undo_search_button = tk.Button(self.inner_frame, text="Cofnij wyszukiwanie", command=lambda: undo_search(self.conn, self.task_listbox))
         self.undo_search_button.grid(row=2, column=7, padx=10, pady=10, sticky="w")
 
-        self.mark_undone_button = tk.Button(self.inner_frame, text="Oznacz jako niezrobione",
-                                            command=lambda: mark_undone(self.conn, self.task_listbox))
+        self.mark_undone_button = tk.Button(self.inner_frame, text="Oznacz jako niezrobione", command=lambda: mark_undone(self.conn, self.task_listbox))
         self.mark_undone_button.grid(row=2, column=2, padx=10, pady=10, sticky="nsew")
 
         self.save_button = tk.Button(self.inner_frame, text="Zapisz do pliku", command=self.save_tasks_to_file)
         self.save_button.grid(row=3, column=0, padx=10, pady=10, sticky="nsew")
 
-        self.sort_button = tk.Button(self.inner_frame, text="Sortuj zadania",
-                                     command=lambda: sort_tasks(self.conn, self.task_listbox))
+        self.sort_button = tk.Button(self.inner_frame, text="Sortuj zadania", command=lambda: sort_tasks(self.conn, self.task_listbox))
         self.sort_button.grid(row=3, column=1, padx=10, pady=10, sticky="nsew")
 
-        self.unsorted_button = tk.Button(self.inner_frame, text="Nieposortowane zadania",
-                                         command=lambda: display_unsorted_tasks(self.conn, self.task_listbox))
+        self.unsorted_button = tk.Button(self.inner_frame, text="Nieposortowane zadania", command=lambda: display_unsorted_tasks(self.conn, self.task_listbox))
         self.unsorted_button.grid(row=3, column=4, padx=10, pady=10, sticky="nsew")
 
         self.import_button = tk.Button(self.inner_frame, text="Importuj dane z CSV", command=self.import_data_from_csv)
         self.import_button.grid(row=3, column=2, padx=10, pady=10, sticky="nsew")
 
-        self.set_notification_button = tk.Button(self.inner_frame, text="Ustaw powiadomienie",
-                                                 command=lambda: set_notification_time(self.conn, self.task_listbox))
+        self.set_notification_button = tk.Button(self.inner_frame, text="Ustaw powiadomienie", command=lambda: set_notification_time(self.conn, self.task_listbox))
         self.set_notification_button.grid(row=2, column=8, padx=10, pady=10, sticky="nsew")
 
         self.weekly_planner_frame = tk.Frame(self.inner_frame)
@@ -174,8 +164,7 @@ class ToDoListApp:
         self.weekday_combobox = ttk.Combobox(self.inner_frame, values=self.weekdays)
         self.weekday_combobox.grid(row=4, column=0, padx=10, pady=10, sticky="w")
 
-        self.add_task_to_day_button = tk.Button(self.inner_frame, text="Dodaj zadanie do dnia",
-                                                command=self.add_task_to_day)
+        self.add_task_to_day_button = tk.Button(self.inner_frame, text="Dodaj zadanie do dnia", command=self.add_task_to_day)
         self.add_task_to_day_button.grid(row=4, column=1, padx=10, pady=10, sticky="w")
 
         self.weekday_combobox = ttk.Combobox(self.inner_frame, values=self.weekdays)
@@ -185,6 +174,48 @@ class ToDoListApp:
         self.add_task_button.grid(row=4, column=1, padx=10, pady=10, sticky="w")
 
         self.load_tasks()
+
+    def adjust_font_size(self, event):
+        # Przykładowe dostosowanie rozmiaru czcionki
+        new_font_size = int(self.root.winfo_width() / 30)
+
+        # Dostosuj rozmiar czcionki dla elementów
+        self.task_entry.config(font=("Helvetica", new_font_size))
+        self.priority_entry_label.config(font=("Helvetica", new_font_size))
+        self.priority_entry.config(font=("Helvetica", new_font_size))
+        # Dodaj resztę elementów do dostosowania
+
+    def adjust_widgets(self, event):
+        # Przykładowe dostosowanie rozmiaru czcionki
+        new_font_size = int(self.root.winfo_width() / 30)
+
+        # Dostosuj rozmiar czcionki dla elementów
+        for widget in [
+            self.task_entry, self.priority_entry_label, self.priority_entry,
+            self.due_date_entry_label, self.calendar_button, self.search_button,
+            self.display_chart_button, self.add_description_button,
+            self.show_description_button, self.edit_description_button, self.due_date_entry,
+            self.add_button, self.show_today_button, self.delete_button,
+            self.mark_done_button, self.undo_search_button, self.mark_undone_button,
+            self.save_button, self.sort_button, self.unsorted_button, self.import_button,
+            self.set_notification_button, self.weekly_planner_frame, self.change_view_button,
+            self.weekday_combobox, self.add_task_to_day_button, self.change_view_combobox,
+            self.task_listbox_frame, self.task_listbox, self.mark_done_button,
+            self.undo_search_button, self.mark_undone_button,
+            self.save_button,self.sort_button,
+            self.unsorted_button,self.import_button,
+            self.set_notification_button,
+            self.weekly_planner_frame,self.change_view_button,
+            self.weekday_combobox,self.add_task_to_day_button,
+
+        ]:
+            widget.config(font=("Helvetica", new_font_size))
+            widget.grid(row=0, column=0, sticky="nsew")
+
+        # Dostosuj rozmiar okna
+        new_width = int(self.root.winfo_width() / 1.5)
+        new_height = int(self.root.winfo_height() / 1.5)
+        self.root.geometry(f"{new_width}x{new_height}")
 
     def open_calendar(self):
         top = tk.Toplevel()
