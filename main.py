@@ -17,6 +17,7 @@ from priority_manager import dynamic_priority
 from importCSV import import_from_csv
 from editTask import edit_task_name
 from description import add_description, show_description
+from chart import display_pie_chart
 
 
 class ToDoListApp:
@@ -71,6 +72,10 @@ class ToDoListApp:
         self.search_button = tk.Button(self.inner_frame, text="Wyszukaj zadanie",
                                        command=lambda: search_task(self.conn, self.task_listbox))
         self.search_button.grid(row=2, column=3, padx=10, pady=10, sticky="nsew")
+
+        self.display_chart_button = tk.Button(self.inner_frame, text="Wyświetl wykres",
+                                              command=lambda: display_pie_chart(self.conn, self.task_listbox))
+        self.display_chart_button.grid(row=3, column=3, padx=10, pady=10, sticky="nsew")
 
         self.add_description_button = tk.Button(self.inner_frame, text="Dodaj opis",
                                                 command=lambda: add_description(self.conn, self.task_listbox))
