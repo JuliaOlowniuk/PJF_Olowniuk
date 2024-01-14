@@ -32,7 +32,8 @@ def save_tasks_to_file(conn, filename, file_format="txt"):
 
             for task in tasks:
                 execution_date = task[4] if task[4] else ""
-                task_text = f"{task[1]} (Priorytet: {task[3]})"
+                status = "x" if task[2] else " "
+                task_text = f"[{status}] {task[1]} (Priorytet: {task[3]})"
                 if execution_date:
                     task_text += f", Data wykonania: {execution_date}"
                 doc.add_paragraph(task_text)
