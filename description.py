@@ -5,32 +5,39 @@ from load import refresh_task_listbox
 def add_description(conn, task_listbox):
     selected_task_indices = task_listbox.curselection()
 
-    if selected_task_indices:
-        # Pobierz ID zadania z pierwszego zaznaczonego elementu
-        selected_task_index = selected_task_indices[0]
-        task_id = task_listbox.get(selected_task_index)[0]
+    if not selected_task_indices:
+        messagebox.showerror("Błąd", "Wybierz zadanie przed dodaniem opisu.")
+        return
 
-        new_note = simpledialog.askstring("Dodaj opis", "Wprowadź opis do zadania:")
+    selected_task_index = selected_task_indices[0]
+    task_id = task_listbox.get(selected_task_index)[0]
 
-        if new_note is not None:
-            update_task_note(conn, task_id, new_note)
-            # refresh_task_listbox(conn, task_listbox)  # Usunięto automatyczne odświeżanie
+    current_note = get_task_note(conn, task_id)
+
+    new_note = simpledialog.askstring("Dodaj opis", "Wprowadź opis do zadania:", initialvalue=current_note)
+
+    if new_note is not None and new_note != current_note:
+        update_task_note(conn, task_id, new_note)
+        messagebox.showinfo("Sukces", "Opis zadania został pomyślnie zaktualizowany.")
+    elif new_note is not None and new_note == current_note:
+        messagebox.showinfo("Informacja", "Opis zadania nie został zmieniony.")
 
 def show_description(conn, task_listbox):
     selected_task_indices = task_listbox.curselection()
 
-    if selected_task_indices:
-        selected_task_index = selected_task_indices[0]
-        task_id = task_listbox.get(selected_task_index)[0]
-
-        current_note = get_task_note(conn, task_id)
-
-        if current_note:
-            messagebox.showinfo("Opis zadania", current_note)
-        else:
-            messagebox.showinfo("Opis zadania", "Brak opisu dla tego zadania.")
-    else:
+    if not selected_task_indices:
         messagebox.showinfo("Opis zadania", "Nie wybrano zadania.")
+        return
+
+    selected_task_index = selected_task_indices[0]
+    task_id = task_listbox.get(selected_task_index)[0]
+
+    current_note = get_task_note(conn, task_id)
+
+    if current_note:
+        messagebox.showinfo("Opis zadania", current_note)
+    else:
+        messagebox.showinfo("Opis zadania", "Brak opisu dla tego zadania.")
 
 def get_task_note(conn, task_id):
     cursor = conn.cursor()
