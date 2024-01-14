@@ -43,17 +43,24 @@ def sort_by_priority_desc(conn, task_listbox):
 
 def sort_by_due_date_asc(conn, task_listbox):
     cursor = conn.cursor()
-    cursor.execute('SELECT * FROM tasks WHERE due_date IS NOT NULL ORDER BY datetime(due_date) ASC, priority ASC')
-    tasks = cursor.fetchall()
-    display_sorted_tasks(task_listbox, tasks)
-
+    # Posortuj zadania według daty wykonania (rosnąco) i priorytetu
+    cursor.execute('SELECT * FROM tasks ORDER BY due_date IS NOT NULL, datetime(due_date) ASC, priority ASC')
+    sorted_tasks = cursor.fetchall()
+    # Wybierz zadania bez daty wykonania i dodaj na koniec listy
+    cursor.execute('SELECT * FROM tasks WHERE due_date IS NULL')
+    tasks_without_due_date = cursor.fetchall()
+    sorted_tasks += tasks_without_due_date
+    display_sorted_tasks(task_listbox, sorted_tasks)
 
 def sort_by_due_date_desc(conn, task_listbox):
     cursor = conn.cursor()
     cursor.execute('SELECT * FROM tasks WHERE due_date IS NOT NULL ORDER BY datetime(due_date) DESC, priority ASC')
-    tasks = cursor.fetchall()
-    display_sorted_tasks(task_listbox, tasks)
+    tasks_with_due_date = cursor.fetchall()
 
+    cursor.execute('SELECT * FROM tasks WHERE due_date IS NULL')
+    tasks_without_due_date = cursor.fetchall()
+
+    display_sorted_tasks(task_listbox, tasks_with_due_date + tasks_without_due_date)
 
 def display_sorted_tasks(task_listbox, tasks):
     task_listbox.delete(0, tk.END)
