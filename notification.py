@@ -45,22 +45,24 @@ def show_notification(task_name):
 def set_notification_time(conn, task_listbox):
     task_id = get_selected_task_id(task_listbox)
 
-    if task_id is not None:
-        due_date = get_due_date_for_task(conn, task_id)
+    if task_id is None:
+        messagebox.showerror("Błąd", "Wybierz zadanie")
+        return
 
-        if due_date is not None:
-            notification_time = simpledialog.askstring("Ustawienie powiadomienia", "Podaj godzinę powiadomienia (HH:MM):")
+    due_date = get_due_date_for_task(conn, task_id)
 
-            if notification_time:
-                try:
-                    notification_time = datetime.strptime(notification_time, "%H:%M").time()
-                    schedule_notification(due_date, notification_time, task_id)
-                    messagebox.showinfo("Sukces", "Godzina powiadomienia została ustawiona pomyślnie.")
-                except ValueError:
-                    messagebox.showerror("Błąd", "Nieprawidłowy format godziny.")
-        else:
-            messagebox.showerror("Błąd", "To zadanie nie ma ustawionej daty wykonania.")
+    if due_date is not None:
+        notification_time = simpledialog.askstring("Ustawienie powiadomienia", "Podaj godzinę powiadomienia (HH:MM):")
 
+        if notification_time:
+            try:
+                notification_time = datetime.strptime(notification_time, "%H:%M").time()
+                schedule_notification(due_date, notification_time, task_id)
+                messagebox.showinfo("Sukces", "Godzina powiadomienia została ustawiona pomyślnie.")
+            except ValueError:
+                messagebox.showerror("Błąd", "Nieprawidłowy format godziny.")
+    else:
+        messagebox.showerror("Błąd", "To zadanie nie ma ustawionej daty wykonania.")
 def schedule_notification(due_date, notification_time, task_id):
     combined_datetime = datetime.combine(due_date, notification_time)
     schedule.every().day.at(combined_datetime.strftime("%H:%M")).do(lambda: show_notification_for_task(task_id))
