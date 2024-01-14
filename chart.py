@@ -1,25 +1,72 @@
 import pandas as pd
 import tkinter as tk
-import matplotlib.pyplot as plt  # Dodaj ten import
-from tkinter import messagebox
-from load import load_tasks
+from tkinter import simpledialog, messagebox
+import matplotlib.pyplot as plt
+from load import refresh_task_listbox
 
-def display_pie_chart(conn, task_listbox):
-    cursor = conn.cursor()
-    cursor.execute('SELECT COUNT(*) FROM tasks WHERE done=?', (True,))
-    completed_count = cursor.fetchone()[0]
+def display_charts(conn, task_listbox):
+    # Okno dialogowe do wyboru rodzaju wykresu
+    chart_type = simpledialog.askinteger("Wybierz rodzaj wykresu", "1. Wykres kołowy\n2. Wykres słupkowy", minvalue=1, maxvalue=2)
 
-    cursor.execute('SELECT COUNT(*) FROM tasks WHERE done=?', (False,))
-    incomplete_count = cursor.fetchone()[0]
+    if chart_type is None:
+        return  # Użytkownik anulował wybór
 
-    data = {'Status': ['Completed', 'Incomplete'], 'Count': [completed_count, incomplete_count]}
-    df = pd.DataFrame(data)
+    # Pobierz dane z listboxa
+    tasks = refresh_task_listbox(conn, task_listbox)  # Teraz funkcja refresh_task_listbox zwraca listę zadań
 
-    try:
-        chart = df.plot.pie(y='Count', labels=df['Status'], autopct='%1.1f%%', startangle=90, legend=False, figsize=(5, 5))
-        chart.set_title('Zadania ukończone vs. nieukończone')
-        plt.show()
-    except Exception as e:
-        messagebox.showerror('Błąd', f'Wystąpił błąd podczas wyświetlania wykresu: {str(e)}')
+    if tasks is None or len(tasks) == 0:
+        messagebox.showinfo('Informacja', 'Brak danych do wyświetlenia wykresu.')
+        return  # Upewnij się, że mamy dane do przetwarzania
 
-    load_tasks(conn, task_listbox)  # Przeładuj zadania po wyświetleniu wykresu
+    # Przetwórz dane z listboxa do postaci, którą można wykorzystać w wykresach
+
+    # Pierwszy wykres - wykres kołowy
+    if chart_type == 1:
+        # Przykład: Zlicz zadania wykonane i niewykonane
+        tasks_completed_count = sum(task[2] for task in tasks)
+        tasks_incomplete_count = len(tasks) - tasks_completed_count
+
+        if tasks_completed_count == 0 and tasks_incomplete_count == 0:
+            messagebox.showinfo('Informacja', 'Brak danych do wyświetlenia wykresu.')
+            return  # Upewnij się, że mamy dane do przetwarzania
+
+        data_pie = {'Status': ['Wykonane', 'Niewykonane'], 'Count': [tasks_completed_count, tasks_incomplete_count]}
+        df_pie = pd.DataFrame(data_pie)
+
+        try:
+            chart_pie = df_pie.plot.pie(y='Count', labels=df_pie['Status'], autopct='%1.1f%%', startangle=90, legend=False, figsize=(5, 5))
+            chart_pie.set_title('Zadania wykonane vs. niewykonane (Wykres kołowy)')
+            plt.show(block=False)  # Użyj block=False
+        except Exception as e:
+            messagebox.showerror('Błąd', f'Wystąpił błąd podczas wyświetlania wykresu kołowego: {str(e)}')
+
+    # Drugi wykres - wykres słupkowy
+    elif chart_type == 2:
+        # Przykład: Zlicz zadania z datą i bez daty
+        tasks_with_date_count = sum(task[4] is not None and task[4] != '' for task in tasks)
+        tasks_without_date_count = len(tasks) - tasks_with_date_count
+
+        if tasks_with_date_count == 0 and tasks_without_date_count == 0:
+            messagebox.showinfo('Informacja', 'Brak danych do wyświetlenia wykresu.')
+            return  # Upewnij się, że mamy dane do przetwarzania
+
+        data_bar = {'Status': ['Z datą', 'Bez daty'], 'Count': [tasks_with_date_count, tasks_without_date_count]}
+        df_bar = pd.DataFrame(data_bar)
+
+        try:
+            # Utwórz okno z wykresem
+            chart_window = tk.Toplevel()
+
+            # Aktualizuj okno główne, aby było gotowe przed utworzeniem nowego okna
+            chart_window.update_idletasks()
+
+            # Wyświetl wykres w oknie
+            chart_bar = df_bar.plot.bar(x='Status', y='Count', legend=False, color=['green', 'orange'])
+            chart_bar.set_title('Zadania z datą vs. zadania bez daty (Wykres słupkowy)')
+            plt.show(block=False)
+
+            # Uruchom główną pętlę aplikacji
+            chart_window.mainloop()
+
+        except Exception as e:
+            messagebox.showerror('Błąd', f'Wystąpił błąd podczas wyświetlania wykresu słupkowego: {str(e)}')

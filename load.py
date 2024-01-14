@@ -31,6 +31,7 @@ def refresh_task_listbox(conn, task_listbox):
         task_text = ' - '.join(elements)
         task_listbox.insert(tk.END, (task[0], task_text))
 
+    return tasks  # Zwracamy listę zadań
 
 def load_tasks(conn, task_listbox):
     task_listbox.delete(0, tk.END)
@@ -47,3 +48,5 @@ def load_tasks(conn, task_listbox):
 
         task_text = ' - '.join(elements)
         task_listbox.insert(tk.END, (task[0], task_text))
+
+    return tasks  # Zwracamy listę zadań
