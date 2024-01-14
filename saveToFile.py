@@ -21,8 +21,8 @@ def save_tasks_to_file(conn, filename, file_format="txt"):
             messagebox.showinfo("Sukces", f"Zadania zapisane do pliku {filename} pomyślnie.")
 
         elif file_format == "xlsx":
-            df = pd.DataFrame(tasks, columns=["Zadanie", "Zrobione", "Priorytet", "Data Wykonania"])
-            df["Data Wykonania"] = df["Data Wykonania"].apply(lambda x: "" if pd.isnull(x) else x)
+            df = pd.DataFrame(tasks, columns=["id", "Zadanie", "Done", "Priorytet", "Data wykonania", "Notatka"])
+            df["Data wykonania"] = df["Data wykonania"].apply(lambda x: "" if pd.isnull(x) else x)
             df.to_excel(filename, index=False)
             messagebox.showinfo("Sukces", f"Zadania zapisane do pliku {filename} pomyślnie.")
 
