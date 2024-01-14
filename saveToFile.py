@@ -13,12 +13,16 @@ def save_tasks_to_file(conn, filename, file_format="txt"):
         if file_format == "txt":
             with open(filename, 'w') as file:
                 for task in tasks:
+                    execution_date = task[4] if task[4] else ""
                     task_text = f"[{'x' if task[2] else ' '}] {task[1]} (Priorytet: {task[3]})"
+                    if execution_date:
+                        task_text += f", Data wykonania: {execution_date}"
                     file.write(task_text + '\n')
             messagebox.showinfo("Sukces", f"Zadania zapisane do pliku {filename} pomyślnie.")
 
         elif file_format == "xlsx":
-            df = pd.DataFrame(tasks, columns=["Zadanie", "Zrobione", "Priorytet"])
+            df = pd.DataFrame(tasks, columns=["Zadanie", "Zrobione", "Priorytet", "Data Wykonania"])
+            df["Data Wykonania"] = df["Data Wykonania"].apply(lambda x: "" if pd.isnull(x) else x)
             df.to_excel(filename, index=False)
             messagebox.showinfo("Sukces", f"Zadania zapisane do pliku {filename} pomyślnie.")
 
@@ -27,7 +31,11 @@ def save_tasks_to_file(conn, filename, file_format="txt"):
             doc.add_heading('Lista zadań', level=1)
 
             for task in tasks:
-                doc.add_paragraph(f"{task[1]} (Priorytet: {task[3]})")
+                execution_date = task[4] if task[4] else ""
+                task_text = f"{task[1]} (Priorytet: {task[3]})"
+                if execution_date:
+                    task_text += f", Data wykonania: {execution_date}"
+                doc.add_paragraph(task_text)
 
             doc.save(filename)
             messagebox.showinfo("Sukces", f"Zadania zapisane do pliku {filename} pomyślnie.")
