@@ -15,7 +15,7 @@ def create_table(conn):
                 priority INTEGER DEFAULT 0,
                 due_date TEXT,
                 note TEXT,
-               
+            
                 FOREIGN KEY (user_id) REFERENCES users(id)
             )
         ''')
