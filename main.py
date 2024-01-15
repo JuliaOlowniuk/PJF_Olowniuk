@@ -5,14 +5,16 @@ from tkcalendar import DateEntry
 from datetime import datetime
 from notification import set_notification_time, show_tasks_for_today
 from tkinter import filedialog, simpledialog, messagebox
+from tkinter.simpledialog import askstring
 import os
 from add import add_task
 from done import mark_done, mark_undone
 from delete import delete_task, update_priorities_after_delete
 from load import load_tasks
 from sort import sort_tasks, display_unsorted_tasks
-from todolist_db import create_table
+from todolist_db import create_table, clear_unassigned_tasks
 from search import search_task, undo_search
+from user_db import authenticate_user, create_users_table, register_new_user, get_user_by_email, check_password
 from saveToFile import save_tasks_to_file
 from priority_manager import dynamic_priority
 from importCSV import import_from_csv
@@ -21,6 +23,89 @@ from description import add_description, show_description
 from weekly_planner import WeeklyPlanner
 from chart import display_charts
 from enum import Enum
+
+
+class LoginOrRegisterWindow:
+    def __init__(self, parent, mode,conn):
+        self.parent = parent
+        self.root = tk.Toplevel(parent)
+        self.conn = conn
+        self.root.title("Logowanie / Rejestracja")
+
+        # Pole wprowadzania e-maila
+        self.email_label = tk.Label(self.root, text="E-mail:")
+        self.email_label.pack(pady=5)
+        self.email_entry = tk.Entry(self.root)
+        self.email_entry.pack(pady=5)
+
+        # Pole wprowadzania hasła
+        self.password_label = tk.Label(self.root, text="Hasło:")
+        self.password_label.pack(pady=5)
+        self.password_entry = tk.Entry(self.root, show='*')
+        self.password_entry.pack(pady=10)
+
+        # Przycisk "Zaloguj się" lub "Zarejestruj się" w zależności od trybu
+        if mode == "login":
+            self.action_button = tk.Button(self.root, text="Zaloguj się", command=self.login)
+        elif mode == "register":
+            self.action_button = tk.Button(self.root, text="Zarejestruj się", command=self.register)
+        else:
+            raise ValueError("Niewłaściwy tryb")
+
+        self.action_button.pack(pady=10)
+
+    def login(self):
+        email = self.email_entry.get().strip()
+        password = self.password_entry.get().strip()
+
+        if not email or not password:
+            messagebox.showwarning("Błąd", "Wprowadź e-mail i hasło.")
+            return
+
+        user = get_user_by_email(self.conn, email)
+        if user and check_password(password, user[2]):
+            messagebox.showinfo("Logowanie", "Logowanie udane!")
+            self.show_task_list(user[0])  # user[0] to id użytkownika
+            self.root.destroy()
+        else:
+            messagebox.showwarning("Błąd", "Nieprawidłowy e-mail lub hasło.")
+    def register(self):
+        email = self.email_entry.get().strip()
+        password = self.password_entry.get().strip()
+
+        if not email or not password:
+            messagebox.showwarning("Błąd", "Wprowadź e-mail i hasło.")
+            return
+        user = get_user_by_email(self.conn, email)
+        if not user:
+            if register_new_user(self.conn, email, password):
+                messagebox.showinfo("Rejestracja", "Rejestracja udana!")
+                user = get_user_by_email(self.conn, email)
+                self.show_task_list(user[0])  # user[0] to id użytkownika
+                self.root.destroy()
+            else:
+                messagebox.showwarning("Błąd", "Błąd podczas rejestracji użytkownika.")
+        else:
+            messagebox.showwarning("Błąd", "Użytkownik o podanym e-mailu już istnieje.")
+
+class LoginOrRegisterApp:
+    def __init__(self):
+        self.root = tk.Tk()
+        self.root.title("ToDo List App")
+        self.conn = sqlite3.connect('todolist.db')
+
+        # Przyciski "Zaloguj się" i "Zarejestruj się"
+        self.login_button = tk.Button(self.root, text="Zaloguj się", command=lambda: self.show_login_window())
+        self.login_button.pack(pady=10)
+
+        self.register_button = tk.Button(self.root, text="Zarejestruj się", command=lambda: self.show_register_window())
+        self.register_button.pack(pady=10)
+
+    def show_login_window(self):
+        login_window = LoginOrRegisterWindow(self.root, mode="login", conn=self.conn)
+
+    def show_register_window(self):
+        register_window = LoginOrRegisterWindow(self.root, mode="register", conn=self.conn)
 
 class DisplayMode(Enum):
     TODO_LIST = 1
@@ -334,18 +419,26 @@ class ToDoListApp:
         selected_weekday = self.weekday_combobox.get()
         if selected_weekday:
             add_task(self.conn, self.task_listbox, priority=1, due_date=selected_weekday)
+
     def add_task_to_week(self):
         selected_weekday = self.weekly_planner_combobox.get()
         if selected_weekday:
-            add_task(self.conn, self.task_listbox, priority=1, due_date=selected_weekday)
+           add_task(self.conn, self.task_listbox, priority=1, due_date=selected_weekday)
+def run_main_app(self):
+        # Utwórz główne okno programu ToDoListApp
+        if tk.TkVersion >= 8.6:
+            root = tk.Tk()
+        else:
+            root = tk.Tk(className="ToDo List App")
 
-if tk.TkVersion >= 8.6:
-    root = tk.Tk()
-else:
-    root = tk.Tk(className="ToDo List App")
+        app = ToDoListApp()
+        app.initialize(root)
+        root.geometry("1500x400")
+        root.resizable(True, True)
+        root.mainloop()
 
-app = ToDoListApp()
-app.initialize(root)
-root.geometry("1500x400")
-root.resizable(True, True)
-root.mainloop()
+# Utwórz instancję klasy LoginOrRegisterWindow i uruchom jej metodę run()
+login_register_app = LoginOrRegisterApp()
+login_register_app.root.geometry("300x200")
+login_register_app.root.resizable(False, False)
+login_register_app.root.mainloop()
