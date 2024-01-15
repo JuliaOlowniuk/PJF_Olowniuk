@@ -87,7 +87,10 @@ class LoginOrRegisterWindow:
 
     def show_task_list(self, user_id):
         # Tutaj można dodać kod otwierający główne okno aplikacji ToDoListApp
-        pass
+        todo_app = ToDoListApp()
+        todo_app.initialize(self.root)
+        todo_app.create_widgets()
+        self.root.destroy()
 
 class LoginOrRegisterApp:
     def __init__(self):
@@ -127,6 +130,9 @@ class ToDoListApp:
 
         self.main_frame = tk.Frame(self.root)
         self.main_frame.pack(fill=tk.BOTH, expand=True)
+
+        self.inner_frame = tk.Frame(self.root)
+        self.inner_frame.pack(fill=tk.BOTH, expand= True)
 
         self.create_widgets()
         self.display_mode = DisplayMode.TODO_LIST
@@ -451,3 +457,4 @@ login_register_app = LoginOrRegisterApp()
 login_register_app.root.geometry("300x200")
 login_register_app.root.resizable(False, False)
 login_register_app.root.mainloop()
+run_main_app()
