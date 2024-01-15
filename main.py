@@ -4,17 +4,15 @@ import tkinter.ttk as ttk
 from tkcalendar import DateEntry
 from datetime import datetime
 from notification import set_notification_time, show_tasks_for_today
-from tkinter import filedialog, simpledialog, messagebox
-from tkinter.simpledialog import askstring
+from tkinter import filedialog, messagebox
 import os
 from add import add_task
 from done import mark_done, mark_undone
 from delete import delete_task, update_priorities_after_delete
 from load import load_tasks
 from sort import sort_tasks, display_unsorted_tasks
-from todolist_db import create_table, clear_unassigned_tasks
+#from todolist_db import create_tables, get_user_by_email, register_new_user, hash_password, check_password
 from search import search_task, undo_search
-from user_db import authenticate_user, create_users_table, register_new_user, get_user_by_email, check_password
 from saveToFile import save_tasks_to_file
 from priority_manager import dynamic_priority
 from importCSV import import_from_csv
@@ -24,9 +22,8 @@ from weekly_planner import WeeklyPlanner
 from chart import display_charts
 from enum import Enum
 
-
 class LoginOrRegisterWindow:
-    def __init__(self, parent, mode,conn):
+    def __init__(self, parent, mode, conn):
         self.parent = parent
         self.root = tk.Toplevel(parent)
         self.conn = conn
@@ -88,6 +85,10 @@ class LoginOrRegisterWindow:
         else:
             messagebox.showwarning("Błąd", "Użytkownik o podanym e-mailu już istnieje.")
 
+    def show_task_list(self, user_id):
+        # Tutaj można dodać kod otwierający główne okno aplikacji ToDoListApp
+        pass
+
 class LoginOrRegisterApp:
     def __init__(self):
         self.root = tk.Tk()
@@ -115,12 +116,19 @@ class ToDoListApp:
     weekdays = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
 
     def initialize(self, root):
-        self.root = root
+        self.root = tk.Tk()
         self.root.title("ToDo List App")
 
         self.conn = sqlite3.connect('todolist.db')
-        create_table(self.conn)
+        create_tables(self.conn)
 
+        self.display_mode = DisplayMode.TODO_LIST
+        self.weekly_planner = None
+
+        self.main_frame = tk.Frame(self.root)
+        self.main_frame.pack(fill=tk.BOTH, expand=True)
+
+        self.create_widgets()
         self.display_mode = DisplayMode.TODO_LIST
         self.weekly_planner = None
 
@@ -424,18 +432,19 @@ class ToDoListApp:
         selected_weekday = self.weekly_planner_combobox.get()
         if selected_weekday:
            add_task(self.conn, self.task_listbox, priority=1, due_date=selected_weekday)
-def run_main_app(self):
-        # Utwórz główne okno programu ToDoListApp
-        if tk.TkVersion >= 8.6:
-            root = tk.Tk()
-        else:
-            root = tk.Tk(className="ToDo List App")
 
-        app = ToDoListApp()
-        app.initialize(root)
-        root.geometry("1500x400")
-        root.resizable(True, True)
-        root.mainloop()
+def run_main_app():
+    # Utwórz główne okno programu ToDoListApp
+    if tk.TkVersion >= 8.6:
+        root = tk.Tk()
+    else:
+        root = tk.Tk(className="ToDo List App")
+
+    app = ToDoListApp()
+    app.initialize(root)
+    root.geometry("1500x400")
+    root.resizable(True, True)
+    root.mainloop()
 
 # Utwórz instancję klasy LoginOrRegisterWindow i uruchom jej metodę run()
 login_register_app = LoginOrRegisterApp()
