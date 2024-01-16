@@ -27,6 +27,7 @@ class LoginOrRegisterWindow:
         self.conn = conn
         self.root.title("Logowanie / Rejestracja")
 
+        self.logged_in_user = None
         # Pole wprowadzania e-maila
         self.username_label = tk.Label(self.root, text="Username:")
         self.username_label.pack(pady=5)
@@ -86,7 +87,7 @@ class LoginOrRegisterWindow:
     def show_task_list(self, user_id):
         # Tutaj można dodać kod otwierający główne okno aplikacji ToDoListApp
         todo_app = ToDoListApp()
-        todo_app.initialize(self.root)
+        todo_app.initialize(self.root, self.logged_in_user)
         todo_app.create_widgets()
         self.root.destroy()
 
@@ -111,9 +112,10 @@ class LoginOrRegisterApp:
 
 class ToDoListApp:
 
-    def initialize(self, root):
+    def initialize(self,root, logged_in_user):
         self.root = tk.Tk()
         self.root.title("ToDo List App")
+        self.logged_in_user = logged_in_user
 
         self.conn = sqlite3.connect('todolist.db')
         create_tables(self.conn)
@@ -124,10 +126,8 @@ class ToDoListApp:
         self.inner_frame = tk.Frame(self.root)
         self.inner_frame.pack(fill=tk.BOTH, expand= True)
 
-        self.create_widgets()
-
-        self.main_frame = tk.Frame(root)
-        self.main_frame.pack(fill=tk.BOTH, expand=True)
+        #self.main_frame = tk.Frame(root)
+        #self.main_frame.pack(fill=tk.BOTH, expand=True)
 
         self.scrollbar_y = tk.Scrollbar(self.main_frame, orient=tk.VERTICAL)
         self.scrollbar_y.pack(side=tk.RIGHT, fill=tk.Y)
@@ -148,6 +148,15 @@ class ToDoListApp:
         self.inner_frame.bind("<Configure>", self.on_frame_configure)
 
         self.create_widgets()
+
+    def get_user_id_from_database(self, username):
+        cursor = self.conn.cursor()
+        cursor.execute('SELECT id FROM users WHERE username=?', (username,))
+        user_id = cursor.fetchone()
+        if user_id:
+            return user_id[0]
+        else:
+            return None
 
     def on_frame_configure(self, event):
         self.canvas.configure(scrollregion=self.canvas.bbox("all"))
@@ -261,15 +270,13 @@ class ToDoListApp:
             self.add_button, self.show_today_button, self.delete_button,
             self.mark_done_button, self.undo_search_button, self.mark_undone_button,
             self.save_button, self.sort_button, self.unsorted_button, self.import_button,
-            self.set_notification_button, self.weekly_planner_frame, self.change_view_button,
-            self.weekday_combobox,
+            self.set_notification_button, self.weekly_planner_frame,
             self.task_listbox_frame, self.task_listbox, self.mark_done_button,
             self.undo_search_button, self.mark_undone_button,
             self.save_button,self.sort_button,
             self.unsorted_button,self.import_button,
             self.set_notification_button,
-            self.weekly_planner_frame,self.change_view_button,
-            self.weekday_combobox
+            self.weekly_planner_frame
 
         ]:
             widget.config(font=("Helvetica", new_font_size))
@@ -315,10 +322,10 @@ class ToDoListApp:
             save_tasks_to_file(self.conn, filename, file_format)
 
     def add_task_with_dynamic_priority(self):
-        # Pobierz zadanie
+        # Pobierz zadanie z pola wprowadzania
         task = self.task_entry.get().strip()
 
-        # Pobierz priorytet
+        # Pobierz priorytet z pola wprowadzania
         priority_entry_value = self.priority_entry.get().strip()
 
         if priority_entry_value:
@@ -333,11 +340,16 @@ class ToDoListApp:
 
         # Sprawdź, czy due_date_entry jest puste
         due_date = self.due_date_entry.get().strip()
-        if due_date == "":
-            due_date = None  # Ustaw na None, jeśli nie podano
+        if not due_date:
+            messagebox.showwarning("Uwaga", "Wprowadź datę wykonania zadania!")
+            return
 
-        # Wywołaj funkcję add_task, przekazując odpowiednie argumenty
-        add_task(self.conn, self.task_listbox, task, priority, due_date)
+        # Pobierz user_id z pola klasy
+        user_id = self.get_user_id_from_database(self.logged_in_user)
+
+        # Wywołaj funkcję add_task, przekazując odpowiednie argumenty, w tym user_id
+        add_task(self.conn, user_id, self.task_listbox, self.task_entry, self.priority_entry, self.due_date_entry,
+                 priority)
     def import_data_from_csv(self):
         import_from_csv(self.conn, self.task_listbox)
 
@@ -353,16 +365,6 @@ class ToDoListApp:
 
     def show_tasks_for_today(self):
         show_tasks_for_today(self.conn)
-
-    def add_task_to_day(self):
-        selected_weekday = self.weekday_combobox.get()
-        if selected_weekday:
-            add_task(self.conn, self.task_listbox, priority=1, due_date=selected_weekday)
-
-    def add_task_to_week(self):
-        selected_weekday = self.weekly_planner_combobox.get()
-        if selected_weekday:
-           add_task(self.conn, self.task_listbox, priority=1, due_date=selected_weekday)
 
 def run_main_app():
     # Utwórz główne okno programu ToDoListApp
