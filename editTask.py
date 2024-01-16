@@ -15,12 +15,12 @@ def edit_task_name(conn, task_listbox):
     cursor.execute('SELECT task FROM tasks WHERE id=?', (task_id,))
     current_name = cursor.fetchone()[0]
 
-    new_name = simpledialog.askstring("Edytuj zadanie", "Wprowadź nowy opis zadania:", initialvalue=current_name)
+    new_name = simpledialog.askstring("Edytuj zadanie", "Wprowadź nowa nazwe zadania:", initialvalue=current_name)
 
     if new_name is not None and new_name != current_name:
         cursor.execute('UPDATE tasks SET task=? WHERE id=?', (new_name, task_id))
         conn.commit()
         load_tasks(conn, task_listbox)
-        messagebox.showinfo("Sukces", "Opis zadania został pomyślnie zaktualizowany.")
+        messagebox.showinfo("Sukces", "Nazwa zadania została pomyślnie zaktualizowana.")
     elif new_name is not None and new_name == current_name:
-        messagebox.showinfo("Informacja", "Opis zadania nie został zmieniony.")
+        messagebox.showinfo("Informacja", "Nazwa zadania nie została zmieniona.")
