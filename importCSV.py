@@ -2,6 +2,7 @@ import csv
 import sqlite3
 from tkinter import filedialog, messagebox
 from load import load_tasks
+from datetime import datetime
 
 def import_from_csv(conn, task_listbox):
     try:
@@ -17,11 +18,32 @@ def import_from_csv(conn, task_listbox):
             csv_reader = csv.reader(csv_file)
             next(csv_reader)  # Pomijamy nagłówek
 
-            # Iteruj przez wiersze i dodawaj do bazy danych
             cursor = conn.cursor()
             for row in csv_reader:
-                task, done, priority, due_date = row
-                cursor.execute('INSERT INTO tasks (task, done, priority, due_date) VALUES (?, ?, ?, ?)', (task, int(done), int(priority), due_date))
+                # Wartości w cudzysłowach, oddzielone przecinkiem
+                values = row[0].split(',')
+                values = [value.strip('"') for value in values]
+
+                if len(values) == 5:  # Oczekuję pięciu wartości w jednym wierszu
+                    task, done, priority, due_date, note = values
+                    done = bool(
+                        int(done)) if done.isdigit() else done.lower() == 'true'  # Konwertuj do wartości logicznej
+
+                    # Sprawdź, czy data została podana
+                    if due_date.strip():
+                        try:
+                            due_date = datetime.strptime(due_date, '%Y-%m-%d').date()
+                        except ValueError:
+                            messagebox.showwarning("Uwaga", f"Nieprawidłowy format daty: {due_date}")
+                            return
+                    else:
+                        due_date = None
+
+                    cursor.execute('INSERT INTO tasks (task, done, priority, due_date, note) VALUES (?, ?, ?, ?, ?)',
+                                   (task, done, int(priority), due_date, note))
+                else:
+                    messagebox.showwarning("Uwaga", "Nieprawidłowy format danych w pliku CSV.")
+                    return
 
         conn.commit()
         load_tasks(conn, task_listbox)  # Załaduj zadania po imporcie
