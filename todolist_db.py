@@ -15,7 +15,7 @@ def create_users_table(conn):
         cursor.execute('''
             CREATE TABLE IF NOT EXISTS users (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
-                username TEXT UNIQUE NOT NULL,
+                email TEXT UNIQUE NOT NULL,
                 password_hash TEXT NOT NULL
             )
         ''')
@@ -56,35 +56,31 @@ def hash_password(password):
     return bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt())
 
 def check_password(plain_password, hashed_password):
-    if isinstance(hashed_password, str):
-        hashed_password = hashed_password.encode('utf-8')
-    return bcrypt.checkpw(plain_password, hashed_password)
+    return bcrypt.checkpw(plain_password.encode('utf-8'), hashed_password)
 
-def get_user_by_username(conn, username):
+def get_user_by_email(conn, email):
     cursor = conn.cursor()
-    cursor.execute('SELECT * FROM users WHERE username=?', (username,))
+    cursor.execute('SELECT * FROM users WHERE email=?', (email,))
     user = cursor.fetchone()
     return user
 
-def authenticate_user(conn, username, password):
+def authenticate_user(conn, email, password):
     cursor = conn.cursor()
-    cursor.execute('SELECT * FROM users WHERE username=?', (username,))
+    cursor.execute('SELECT * FROM users WHERE email=?', (email,))
     user = cursor.fetchone()
-    if user and check_password(password.encode('utf-8'), user[2].encode('utf-8')):
+    if user and check_password(password, user[2]):
         return user
     else:
         print("Nieprawidłowy e-mail lub hasło.")
         return None
 
-def register_new_user(conn, username, password):
+def register_new_user(conn, email, password_hash):
     try:
-        password_hash = hash_password(password)
         cursor = conn.cursor()
-        cursor.execute('INSERT INTO users (username, password_hash) VALUES (?, ?)', (username, password_hash))
+        cursor.execute('INSERT INTO users (email, password_hash) VALUES (?, ?)', (email, hash_password(password_hash)))
         conn.commit()
         print("Nowy użytkownik zarejestrowany.")
         return True
     except sqlite3.IntegrityError as e:
         print(f"Błąd SQLite przy rejestracji nowego użytkownika: {e}")
         return False
-

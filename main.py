@@ -4,130 +4,43 @@ import tkinter.ttk as ttk
 from tkcalendar import DateEntry
 from datetime import datetime
 from notification import set_notification_time, show_tasks_for_today
-from tkinter import filedialog, messagebox
+from tkinter import filedialog, simpledialog, messagebox
 import os
 from add import add_task
 from done import mark_done, mark_undone
 from delete import delete_task, update_priorities_after_delete
 from load import load_tasks
 from sort import sort_tasks, display_unsorted_tasks
-from todolist_db import create_tables, get_user_by_username, register_new_user, hash_password, check_password
+from todolist_db import create_tables
 from search import search_task, undo_search
 from saveToFile import save_tasks_to_file
 from priority_manager import dynamic_priority
 from importCSV import import_from_csv
 from editTask import edit_task_name
 from description import add_description, show_description
+from weekly_planner import WeeklyPlanner
 from chart import display_charts
+from enum import Enum
 
-class LoginOrRegisterWindow:
-    def __init__(self, parent, mode, conn):
-        self.parent = parent
-        self.root = tk.Toplevel(parent)
-        self.conn = conn
-        self.root.title("Logowanie / Rejestracja")
-
-        self.logged_in_user = None
-        # Pole wprowadzania e-maila
-        self.username_label = tk.Label(self.root, text="Username:")
-        self.username_label.pack(pady=5)
-        self.username_entry = tk.Entry(self.root)
-        self.username_entry.pack(pady=5)
-
-        # Pole wprowadzania hasła
-        self.password_label = tk.Label(self.root, text="Hasło:")
-        self.password_label.pack(pady=5)
-        self.password_entry = tk.Entry(self.root, show='*')
-        self.password_entry.pack(pady=10)
-
-        # Przycisk "Zaloguj się" lub "Zarejestruj się" w zależności od trybu
-        if mode == "login":
-            self.action_button = tk.Button(self.root, text="Zaloguj się", command=self.login)
-        elif mode == "register":
-            self.action_button = tk.Button(self.root, text="Zarejestruj się", command=self.register)
-        else:
-            raise ValueError("Niewłaściwy tryb")
-
-        self.action_button.pack(pady=10)
-
-    def login(self):
-        username = self.username_entry.get().strip()
-        password = self.password_entry.get().strip().encode('utf-8')
-
-        if not username or not password:
-            messagebox.showwarning("Błąd", "Wprowadź username i hasło.")
-            return
-
-        user = get_user_by_username(self.conn, username)
-        if user and check_password(password, user[2]):
-            messagebox.showinfo("Logowanie", "Logowanie udane!")
-            self.show_task_list(user[0])  # user[0] to id użytkownika
-            self.root.destroy()
-        else:
-            messagebox.showwarning("Błąd", "Nieprawidłowy username lub hasło.")
-    def register(self):
-        username = self.username_entry.get().strip()
-        password = self.password_entry.get().strip()
-
-        if not username or not password:
-            messagebox.showwarning("Błąd", "Wprowadź username i hasło.")
-            return
-        user = get_user_by_username(self.conn, username)
-        if not user:
-            if register_new_user(self.conn, username, password):
-                messagebox.showinfo("Rejestracja", "Rejestracja udana!")
-                user = get_user_by_username(self.conn, username)
-                self.show_task_list(user[0])  # user[0] to id użytkownika
-                self.root.destroy()
-            else:
-                messagebox.showwarning("Błąd", "Błąd podczas rejestracji użytkownika.")
-        else:
-            messagebox.showwarning("Błąd", "Użytkownik o podanym username już istnieje.")
-
-    def show_task_list(self, user_id):
-        # Tutaj można dodać kod otwierający główne okno aplikacji ToDoListApp
-        todo_app = ToDoListApp()
-        todo_app.initialize(self.root, self.logged_in_user)
-        todo_app.create_widgets()
-        self.root.destroy()
-
-class LoginOrRegisterApp:
-    def __init__(self):
-        self.root = tk.Tk()
-        self.root.title("ToDo List App")
-        self.conn = sqlite3.connect('todolist.db')
-
-        # Przyciski "Zaloguj się" i "Zarejestruj się"
-        self.login_button = tk.Button(self.root, text="Zaloguj się", command=lambda: self.show_login_window())
-        self.login_button.pack(pady=10)
-
-        self.register_button = tk.Button(self.root, text="Zarejestruj się", command=lambda: self.show_register_window())
-        self.register_button.pack(pady=10)
-
-    def show_login_window(self):
-        login_window = LoginOrRegisterWindow(self.root, mode="login", conn=self.conn)
-
-    def show_register_window(self):
-        register_window = LoginOrRegisterWindow(self.root, mode="register", conn=self.conn)
+class DisplayMode(Enum):
+    TODO_LIST = 1
+    WEEKLY_PLANNER = 2
 
 class ToDoListApp:
+    weekdays = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
 
-    def initialize(self,root, logged_in_user):
-        self.root = tk.Tk()
+    def initialize(self, root):
+        self.root = root
         self.root.title("ToDo List App")
-        self.logged_in_user = logged_in_user
 
         self.conn = sqlite3.connect('todolist.db')
         create_tables(self.conn)
 
-        self.main_frame = tk.Frame(self.root)
+        self.display_mode = DisplayMode.TODO_LIST
+        self.weekly_planner = None
+
+        self.main_frame = tk.Frame(root)
         self.main_frame.pack(fill=tk.BOTH, expand=True)
-
-        self.inner_frame = tk.Frame(self.root)
-        self.inner_frame.pack(fill=tk.BOTH, expand= True)
-
-        #self.main_frame = tk.Frame(root)
-        #self.main_frame.pack(fill=tk.BOTH, expand=True)
 
         self.scrollbar_y = tk.Scrollbar(self.main_frame, orient=tk.VERTICAL)
         self.scrollbar_y.pack(side=tk.RIGHT, fill=tk.Y)
@@ -147,16 +60,16 @@ class ToDoListApp:
 
         self.inner_frame.bind("<Configure>", self.on_frame_configure)
 
-        self.create_widgets()
+        # Dodaj ramkę dla tygodniowego planu
+        self.weekly_planner_frame = tk.Frame(self.inner_frame)
 
-    def get_user_id_from_database(self, username):
-        cursor = self.conn.cursor()
-        cursor.execute('SELECT id FROM users WHERE username=?', (username,))
-        user_id = cursor.fetchone()
-        if user_id:
-            return user_id[0]
-        else:
-            return None
+        # Przycisk "Zmiana widoku" - ComboBox
+        self.change_view_combobox = ttk.Combobox(self.inner_frame, values=["To-Do List", "Weekly Planner"])
+        self.change_view_combobox.grid(row=3, column=4, padx=10, pady=10, sticky="nsew")
+        self.change_view_combobox.set("To-Do List")  # Domyślny wybór
+        self.change_view_combobox.bind("<<ComboboxSelected>>", self.change_display_mode)
+
+        self.create_widgets()
 
     def on_frame_configure(self, event):
         self.canvas.configure(scrollregion=self.canvas.bbox("all"))
@@ -245,6 +158,21 @@ class ToDoListApp:
 
         self.weekly_planner_frame = tk.Frame(self.inner_frame)
 
+        self.change_view_button = tk.Button(self.inner_frame, text="Zmień widok", command=self.change_display_mode)
+        self.change_view_button.grid(row=3, column=4, padx=10, pady=10, sticky="nsew")
+
+        self.weekday_combobox = ttk.Combobox(self.inner_frame, values=self.weekdays)
+        self.weekday_combobox.grid(row=4, column=0, padx=10, pady=10, sticky="w")
+
+        self.add_task_to_day_button = tk.Button(self.inner_frame, text="Dodaj zadanie do dnia", command=self.add_task_to_day)
+        self.add_task_to_day_button.grid(row=4, column=1, padx=10, pady=10, sticky="w")
+
+        self.weekday_combobox = ttk.Combobox(self.inner_frame, values=self.weekdays)
+        self.weekday_combobox.grid(row=4, column=0, padx=10, pady=10, sticky="w")
+
+        self.add_task_button = tk.Button(self.inner_frame, text="Dodaj zadanie do dnia", command=self.add_task_to_day)
+        self.add_task_button.grid(row=4, column=1, padx=10, pady=10, sticky="w")
+
         self.load_tasks()
 
     def adjust_font_size(self, event):
@@ -270,13 +198,15 @@ class ToDoListApp:
             self.add_button, self.show_today_button, self.delete_button,
             self.mark_done_button, self.undo_search_button, self.mark_undone_button,
             self.save_button, self.sort_button, self.unsorted_button, self.import_button,
-            self.set_notification_button, self.weekly_planner_frame,
+            self.set_notification_button, self.weekly_planner_frame, self.change_view_button,
+            self.weekday_combobox, self.add_task_to_day_button, self.change_view_combobox,
             self.task_listbox_frame, self.task_listbox, self.mark_done_button,
             self.undo_search_button, self.mark_undone_button,
             self.save_button,self.sort_button,
             self.unsorted_button,self.import_button,
             self.set_notification_button,
-            self.weekly_planner_frame
+            self.weekly_planner_frame,self.change_view_button,
+            self.weekday_combobox,self.add_task_to_day_button,
 
         ]:
             widget.config(font=("Helvetica", new_font_size))
@@ -322,10 +252,11 @@ class ToDoListApp:
             save_tasks_to_file(self.conn, filename, file_format)
 
     def add_task_with_dynamic_priority(self):
-        # Pobierz zadanie z pola wprowadzania
+
+        # Pobierz zadanie
         task = self.task_entry.get().strip()
 
-        # Pobierz priorytet z pola wprowadzania
+        # Pobierz priorytet
         priority_entry_value = self.priority_entry.get().strip()
 
         if priority_entry_value:
@@ -340,16 +271,12 @@ class ToDoListApp:
 
         # Sprawdź, czy due_date_entry jest puste
         due_date = self.due_date_entry.get().strip()
-        if not due_date:
-            messagebox.showwarning("Uwaga", "Wprowadź datę wykonania zadania!")
-            return
+        if due_date == "":
+            due_date = None  # Ustaw na None, jeśli nie podano
 
-        # Pobierz user_id z pola klasy
-        user_id = self.get_user_id_from_database(self.logged_in_user)
+        # Wywołaj funkcję add_task, przekazując odpowiednie argumenty
+        add_task(self.conn, self.task_entry, self.task_listbox, self.priority_entry, self.due_date_entry, priority)
 
-        # Wywołaj funkcję add_task, przekazując odpowiednie argumenty, w tym user_id
-        add_task(self.conn, user_id, self.task_listbox, self.task_entry, self.priority_entry, self.due_date_entry,
-                 priority)
     def import_data_from_csv(self):
         import_from_csv(self.conn, self.task_listbox)
 
@@ -365,22 +292,60 @@ class ToDoListApp:
 
     def show_tasks_for_today(self):
         show_tasks_for_today(self.conn)
+    def change_display_mode(self, event=None):
+        selected_view = self.change_view_combobox.get()
 
-def run_main_app():
-    # Utwórz główne okno programu ToDoListApp
-    if tk.TkVersion >= 8.6:
-        root = tk.Tk()
-    else:
-        root = tk.Tk(className="ToDo List App")
+        if selected_view == "To-Do List" and self.display_mode == DisplayMode.TODO_LIST:
+            return
+        elif selected_view == "Weekly Planner" and self.display_mode == DisplayMode.WEEKLY_PLANNER:
+            return
 
-    app = ToDoListApp()
-    app.initialize(root)
-    root.geometry("1500x400")
-    root.resizable(True, True)
-    root.mainloop()
+        if selected_view == "To-Do List":
+            self.display_mode = DisplayMode.TODO_LIST
+            self.change_view_combobox.set("To-Do List")  # Domyślny wybór
+            self.change_display_to_todo_list()
+        elif selected_view == "Weekly Planner":
+            self.display_mode = DisplayMode.WEEKLY_PLANNER
+            self.change_view_combobox.set("Weekly Planner")  # Domyślny wybór
+            self.change_display_to_weekly_planner()
+    def change_display_to_todo_list(self):
+        # Usuń widżety związane z tygodniowym plannerem
+        if self.weekly_planner:
+            self.weekly_planner.weekday_combobox.grid_forget()
+            self.weekly_planner.add_task_button.grid_forget()
+            self.weekly_planner = None
 
-# Utwórz instancję klasy LoginOrRegisterWindow i uruchom jej metodę run()
-login_register_app = LoginOrRegisterApp()
-login_register_app.root.geometry("300x200")
-login_register_app.root.resizable(False, False)
-login_register_app.root.mainloop()
+        # Przywróć widżety związane z To-Do List
+        self.weekday_combobox.grid(row=4, column=0, padx=10, pady=10, sticky="w")
+        self.add_task_button.grid(row=4, column=1, padx=10, pady=10, sticky="w")
+
+
+    def change_display_to_weekly_planner(self):
+        # Usuń widżety związane z To-Do List
+        self.weekday_combobox.grid_forget()
+        self.add_task_button.grid_forget()
+
+        # Stwórz obiekt WeeklyPlanner tylko raz, jeśli jeszcze nie istnieje
+        if not self.weekly_planner:
+            self.weekly_planner = WeeklyPlanner()
+            self.weekly_planner.create_widgets(self.inner_frame, self.conn, self.task_listbox)
+
+    def add_task_to_day(self):
+        selected_weekday = self.weekday_combobox.get()
+        if selected_weekday:
+            add_task(self.conn, self.task_listbox, priority=1, due_date=selected_weekday)
+    def add_task_to_week(self):
+        selected_weekday = self.weekly_planner_combobox.get()
+        if selected_weekday:
+            add_task(self.conn, self.task_listbox, priority=1, due_date=selected_weekday)
+
+if tk.TkVersion >= 8.6:
+    root = tk.Tk()
+else:
+    root = tk.Tk(className="ToDo List App")
+
+app = ToDoListApp()
+app.initialize(root)
+root.geometry("1500x400")
+root.resizable(True, True)
+root.mainloop()
